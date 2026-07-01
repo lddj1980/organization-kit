@@ -1,0 +1,46 @@
+schema_version: "1.0"
+integration:
+  id: claude
+  name: "Claude Code"
+  version: "0.1.0"
+  description: "Skills-based integration for Claude Code CLI and desktop app. Commands are installed as /org.* slash commands."
+
+requires:
+  tools:
+    - name: "claude"
+      required: true
+
+provides:
+  commands_dir: ".claude/commands"
+  file_pattern: "org.{name}.md"
+  commands:
+    - name: "org.init"
+      file: "framework/commands/org.init.md"
+    - name: "org.discover"
+      file: "framework/commands/org.discover.md"
+    - name: "org.spec"
+      file: "framework/commands/org.spec.md"
+    - name: "org.package"
+      file: "framework/commands/org.package.md"
+    - name: "org.invoke"
+      file: "framework/commands/org.invoke.md"
+    - name: "org.review"
+      file: "framework/commands/org.review.md"
+    - name: "org.accept"
+      file: "framework/commands/org.accept.md"
+    - name: "org.learn"
+      file: "framework/commands/org.learn.md"
+    - name: "org.status"
+      file: "framework/commands/org.status.md"
+    - name: "org.health"
+      file: "framework/commands/org.health.md"
+    - name: "org.next"
+      file: "framework/commands/org.next.md"
+    - name: "org.evolve"
+      file: "framework/commands/org.evolve.md"
+
+notes: |
+  Claude Code reads commands from .claude/commands/ in the project root.
+  Commands appear as /org.{name} in the Claude Code interface.
+  The $ARGUMENTS variable is populated with what the user types after the command name.
+  Handoffs appear as suggested next-step buttons in the Claude Code UI.

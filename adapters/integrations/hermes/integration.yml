@@ -1,0 +1,51 @@
+schema_version: "1.0"
+integration:
+  id: hermes
+  name: "Hermes"
+  version: "0.1.0"
+  description: "Skills-based integration for Hermes CLI. Commands are installed GLOBALLY into ~/.hermes/skills/ — available across all projects."
+
+source: "spec-kit confirmed — ~/.hermes/skills/ (global, not project-level)"
+
+requires:
+  tools:
+    - name: "hermes"
+      required: true
+
+provides:
+  commands_dir: "~/.hermes/skills"
+  file_pattern: "org.{name}.md"
+  install_scope: global
+  commands:
+    - name: "org.init"
+      file: "framework/commands/org.init.md"
+    - name: "org.discover"
+      file: "framework/commands/org.discover.md"
+    - name: "org.spec"
+      file: "framework/commands/org.spec.md"
+    - name: "org.package"
+      file: "framework/commands/org.package.md"
+    - name: "org.invoke"
+      file: "framework/commands/org.invoke.md"
+    - name: "org.review"
+      file: "framework/commands/org.review.md"
+    - name: "org.accept"
+      file: "framework/commands/org.accept.md"
+    - name: "org.learn"
+      file: "framework/commands/org.learn.md"
+    - name: "org.status"
+      file: "framework/commands/org.status.md"
+    - name: "org.health"
+      file: "framework/commands/org.health.md"
+    - name: "org.next"
+      file: "framework/commands/org.next.md"
+    - name: "org.evolve"
+      file: "framework/commands/org.evolve.md"
+
+notes: |
+  IMPORTANT: Hermes installs skills globally into ~/.hermes/skills/
+  This means org.* commands will be available in ALL your Hermes sessions,
+  not just this project. This is by design — Hermes skills are user-scoped.
+
+  The setup script expands ~ to $HOME (Bash) or $env:USERPROFILE (PowerShell).
+  Skills appear as /org.{name} in any Hermes session.

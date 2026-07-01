@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["artifactPath", "artifactId", "artifactType", "versionStorage", "version", "memoryUpdated", "capabilitiesUpdated", "status"],
+  "properties": {
+    "artifactPath": { "type": "string" },
+    "artifactId": { "type": "string" },
+    "artifactType": { "type": "string", "enum": ["living", "immutable"] },
+    "versionStorage": { "type": "string", "enum": ["reference", "snapshot"] },
+    "version": { "type": "string" },
+    "memoryUpdated": { "type": "boolean" },
+    "capabilitiesUpdated": { "type": "boolean" },
+    "status": { "type": "string" }
+  }
+}

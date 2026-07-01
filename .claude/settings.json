@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "condenser-vscode": {
+      "command": "node",
+      "args": [
+        "c:\\Users\\User\\.vscode\\extensions\\vscode-headroom.vscode-condenser-0.1.0\\out\\mcp-server.js"
+      ]
+    },
+    "headroom-vscode": {
+      "command": "node",
+      "args": [
+        "c:\\Users\\User\\.vscode\\extensions\\vscode-headroom.vscode-headroom-0.1.0\\out\\mcp-server.js"
+      ]
+    }
+  }
+}

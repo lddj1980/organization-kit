@@ -1,0 +1,18 @@
+id: wp-example-video
+name: "Create product video"
+kit: video-kit
+version: 1.0.0
+status: example
+description: "Example work package for Video Kit"
+inputs:
+  required:
+    - constitution.md
+    - brand.md
+    - video-spec.md
+outputs:
+  expected:
+    - videos/
+    - storyboard.md
+    - script.md
+    - report.md
+

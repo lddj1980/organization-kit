@@ -1,0 +1,11 @@
+﻿{
+  "": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["technicalResult", "strategicResult", "overallResult", "reviewPath"],
+  "properties": {
+    "technicalResult": { "type": "string", "enum": ["pass", "pass-with-notes", "fail"] },
+    "strategicResult": { "type": "string", "enum": ["pass", "pass-with-notes", "fail"] },
+    "overallResult": { "type": "string", "enum": ["pass", "pass-with-notes", "fail"] },
+    "reviewPath": { "type": "string" }
+  }
+}

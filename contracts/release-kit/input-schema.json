@@ -1,0 +1,9 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["constitution.md", "release-plan.md"],
+  "properties": {
+    "constitution.md": { "type": "string", "description": "constitution.md input" },
+    "release-plan.md": { "type": "string", "description": "release-plan.md input" }
+  }
+}

@@ -1,0 +1,18 @@
+id: wp-example-newsletter
+name: "Monthly newsletter issue"
+kit: newsletter-kit
+version: 1.0.0
+status: example
+description: "Example work package for Newsletter Kit"
+inputs:
+  required:
+    - constitution.md
+    - brand.md
+    - newsletter-spec.md
+    - audience.md
+outputs:
+  expected:
+    - issues/
+    - templates/
+    - report.md
+

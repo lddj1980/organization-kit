@@ -1,0 +1,18 @@
+﻿{
+  "": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["capabilities"],
+  "properties": {
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "maturity": { "type": "string", "enum": ["seed", "growing", "mature", "evolving"] },
+          "description": { "type": "string" }
+        }
+      }
+    }
+  }
+}

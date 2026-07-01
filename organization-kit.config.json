@@ -1,0 +1,177 @@
+{
+  "name": "Organization Kit",
+  "version": "2.0.0",
+  "description": "Framework para construir organizações digitais orientadas por propósito",
+  "author": "Organization Kit Contributors",
+  "license": "MIT",
+  "created": "2026-06-29",
+  "last_updated": "2026-06-29",
+  
+  "protocol": {
+    "version": "1.0.0",
+    "name": "EKP",
+    "description": "Entrepreneurial Knowledge Protocol"
+  },
+  
+  "capabilities": {
+    "native": [
+      "website",
+      "content",
+      "seo",
+      "music",
+      "visual",
+      "video",
+      "social",
+      "newsletter",
+      "analytics",
+      "release"
+    ],
+    "maturity_levels": [
+      "nascent",
+      "developing",
+      "mature",
+      "mastered"
+    ]
+  },
+  
+  "commands": [
+    "init",
+    "discover",
+    "spec",
+    "package",
+    "invoke",
+    "review",
+    "accept",
+    "learn",
+    "status",
+    "health",
+    "next",
+    "evolve",
+    "orchestrate"
+  ],
+  
+  "skills": [
+    "init-organization",
+    "discover-constitution",
+    "discover-brand",
+    "discover-audience",
+    "discover-capabilities",
+    "spec-website",
+    "spec-blog",
+    "spec-article",
+    "spec-album",
+    "spec-playlist",
+    "spec-campaign",
+    "package-work",
+    "invoke-capability-kit",
+    "review-delivery",
+    "accept-artifact",
+    "health-check",
+    "next-action",
+    "evolve-organization",
+    "orchestrate-goal"
+  ],
+  
+  "adapters": [
+    "claude-code",
+    "kimi",
+    "opencode",
+    "antigravity",
+    "copilot",
+    "codex",
+    "cursor",
+    "gemini",
+    "generic"
+  ],
+  
+  "contracts": [
+    "website-kit",
+    "content-kit",
+    "seo-kit",
+    "music-kit",
+    "visual-kit",
+    "video-kit",
+    "social-kit",
+    "newsletter-kit",
+    "analytics-kit",
+    "release-kit"
+  ],
+  
+  "work_package": {
+    "id_pattern": "wp-YYYY-NNN",
+    "lifecycle": [
+      "draft",
+      "packaged",
+      "invoked",
+      "in-review",
+      "accepted",
+      "rejected"
+    ],
+    "structure": {
+      "manifest.yaml": "Contract",
+      "request/": "What the kit needs",
+      "response/": "What the kit delivers",
+      "review/": "Validation (technical + strategic)",
+      "logs/": "Changelog"
+    }
+  },
+  
+  "organization": {
+    "structure": {
+      "constitution.md": "Constitution",
+      "knowledge/": "Organizational knowledge",
+      "memory/": "History and learning",
+      "specifications/": "Work specifications",
+      "contracts/": "Capability kit contracts",
+      "work-packages/": "Work packages",
+      "artifacts/": "Accepted artifacts",
+      "state/": "Current state",
+      "workspace/": "Current work space"
+    }
+  },
+  
+  "memory": {
+    "files": [
+      "decisions.md",
+      "history.md",
+      "lessons.md",
+      "brand.json",
+      "audience.json",
+      "capabilities.json"
+    ]
+  },
+  
+  "state": {
+    "files": [
+      "roadmap.json",
+      "health.json",
+      "backlog.json",
+      "status.json"
+    ]
+  },
+  
+  "versioning": {
+    "constitution": "MAJOR.MINOR",
+    "work_package_id": "wp-YYYY-NNN",
+    "contract": "MAJOR.MINOR.PATCH",
+    "artifact": "artifact-{wp-id}-{type}-{counter}",
+    "timestamp_format": "ISO 8601 (UTC)"
+  },
+  
+  "examples": [
+    {
+      "name": "luna-waves",
+      "path": "examples/luna-waves",
+      "description": "Independent music project example"
+    }
+  ],
+  
+  "documentation": {
+    "readme": "README.md",
+    "manifesto": "MANIFESTO.md",
+    "changelog": "CHANGELOG.md",
+    "protocol": "protocol/",
+    "core": "core/",
+    "examples": "examples/"
+  }
+}

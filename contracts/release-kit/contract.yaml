@@ -1,0 +1,123 @@
+﻿kit: release-kit
+version: 2.0.0
+type: capability-kit-contract
+description: Manages releases of music, content, and other artifacts to distribution channels.
+target_product: release-calendar
+delivery_mode: update
+
+artifact:
+  artifact_id: release-calendar
+  artifact_type: living
+  version_storage: snapshot
+  capability: release
+  destination: artifacts/release-calendar/
+  initial_version: v0.1
+
+required_inputs:
+  - constitution.md
+  - brand.md
+  - release-spec.md
+
+optional_inputs:
+  - distribution-channels.md
+  - promotion-plan.md
+  - schedule.md
+
+expected_outputs:
+  - released-assets/
+  - metadata.json
+  - report.md
+
+acceptance:
+  - release quality verified
+  - distribution complete
+  - brand consistency maintained
+  - strategic alignment confirmed
+
+request_structure:
+  directory: request/
+  description: Files the kit needs to execute the work
+  files:
+    brief.md:
+      description: Clear instructions for the kit
+      source: Derived from specification
+      required: true
+    context.md:
+      description: Organizational context including constitution and knowledge
+      source: Generated from organization files
+      required: true
+    spec/:
+      description: Release specification including distribution channels and timeline
+      source: Copied from specifications/ directory
+      required: true
+
+response_structure:
+  directory: response/
+  description: Files the kit must deliver
+  files:
+    released-assets/:
+      description: Release files
+      required: true
+      validation: Check that directory exists and is non-empty
+    metadata.json:
+      description: Release metadata
+      required: true
+      validation: Check file exists and contains expected content
+    report.md:
+      description: Implementation report covering objective, decisions, and status
+      required: true
+      validation: Check that report exists and covers all required sections
+
+review_rules:
+  technical:
+    description: Technical validation rules
+    checks:
+      - rule: All expected outputs exist
+        condition: Check every required file/directory in response_structure exists
+      - rule: Structure matches contract
+        condition: Response structure must follow response_structure defined in this contract
+      - rule: Output quality
+        condition: Content must be complete, well-formed, and free of obvious errors
+      - rule: Documentation complete
+        condition: report.md must document what was built, decisions made, and any deviations
+  strategic:
+    description: Strategic alignment rules
+    checks:
+      - rule: Mission alignment
+        condition: Deliverable must strengthen the organization's mission as defined in the Constitution
+      - rule: Identity preservation
+        condition: Deliverable must feel like the organization - voice, tone, and values must match
+      - rule: Audience fit
+        condition: Deliverable must serve the defined audience appropriately
+      - rule: Limit compliance
+        condition: Deliverable must respect the organization's stated limits
+      - rule: Brand voice
+        condition: Language, style, and tone must match the organization's brand voice
+
+artifact_destination:
+  default: products/{product}/
+  mappings:
+    released-assets/: products/release-calendar/released-assets/
+    metadata.json: products/release-calendar/metadata.json
+    report.md: products/release-calendar/report.md
+acceptance_rules:
+  description: Conditions for accepting a delivery
+  conditions:
+    - Review report must be approved on both technical and strategic dimensions
+    - All required outputs from response_structure must be present
+    - report.md must be complete
+    - User must confirm acceptance
+  actions:
+    - Copy response/* to products/{product}/
+    - Write provenance.md documenting origin
+    - Update memory/history.md with acceptance record
+    - Update state/status.json with new artifact count
+    - Update state/capabilities.json with capability progress
+    - Mark work-package as accepted in manifest
+
+metadata:
+  capabilities: [release]
+  maturity: mature
+  status: active
+  last_updated: 2026-06-29T14:30:00Z
+

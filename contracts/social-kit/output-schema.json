@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["report.md"],
+  "properties": {
+    "posts/": { "type": "string", "description": "Social media posts" },
+    "calendar.md": { "type": "string", "description": "Content calendar" },
+    "analytics.md": { "type": "string", "description": "Performance analytics" },
+    "report.md": { "type": "string", "description": "Implementation report" }
+  }
+}

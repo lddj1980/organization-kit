@@ -1,0 +1,38 @@
+﻿{
+    "organization":  {
+                         "name":  "",
+                         "purpose":  "",
+                         "status":  "active"
+                     },
+    "constitution":  {
+                         "exists":  false,
+                         "last_updated":  ""
+                     },
+    "capabilities":  {
+
+                     },
+    "products":  {
+
+                 },
+    "health":  {
+
+               },
+    "work_packages":  {
+                          "accepted":  [
+
+                                       ],
+                          "completed":  [
+
+                                        ],
+                          "active":  [
+                                         "0001-build-website"
+                                     ]
+                      },
+    "artifacts":  {
+
+                  },
+    "recent_decisions":  [
+
+                         ],
+    "updated_at":  "2026-06-29T20:11:56Z"
+}

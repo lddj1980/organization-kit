@@ -1,0 +1,17 @@
+id: wp-example-release
+name: "Album release coordination"
+kit: release-kit
+version: 1.0.0
+status: example
+description: "Example work package for Release Kit"
+inputs:
+  required:
+    - constitution.md
+    - release-plan.md
+outputs:
+  expected:
+    - release-notes.md
+    - changelog.md
+    - assets/
+    - report.md
+

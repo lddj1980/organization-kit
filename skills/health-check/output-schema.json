@@ -1,0 +1,23 @@
+﻿{
+  "": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["health"],
+  "properties": {
+    "health": {
+      "type": "object",
+      "properties": {
+        "constitution": { "type": "object" },
+        "brand": { "type": "object" },
+        "audience": { "type": "object" },
+        "capabilities": { "type": "object" },
+        "website": { "type": "object" },
+        "content": { "type": "object" },
+        "seo": { "type": "object" },
+        "newsletter": { "type": "object" },
+        "analytics": { "type": "object" },
+        "memory": { "type": "object" }
+      }
+    },
+    "recommendations": { "type": "array", "items": { "type": "string" } }
+  }
+}

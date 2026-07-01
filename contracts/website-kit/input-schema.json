@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["constitution.md", "brand.md", "audience.md", "website-spec.md"],
+  "properties": {
+    "constitution.md": { "type": "string", "description": "constitution.md input" },
+    "brand.md": { "type": "string", "description": "brand.md input" },
+    "audience.md": { "type": "string", "description": "audience.md input" },
+    "website-spec.md": { "type": "string", "description": "website-spec.md input" }
+  }
+}

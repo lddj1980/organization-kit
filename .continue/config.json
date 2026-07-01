@@ -1,0 +1,16 @@
+{
+  "contextProviders": [
+    {
+      "name": "condenser",
+      "params": {
+        "mcpUrl": "http://127.0.0.1:7878/mcp"
+      }
+    },
+    {
+      "name": "headroom",
+      "params": {
+        "mcpUrl": "http://127.0.0.1:7878/mcp"
+      }
+    }
+  ]
+}

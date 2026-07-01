@@ -1,0 +1,10 @@
+﻿{
+  "": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["organizationName"],
+  "properties": {
+    "organizationName": { "type": "string", "description": "Name of the organization" },
+    "targetPath": { "type": "string", "description": "Path to create the organization" },
+    "force": { "type": "boolean", "default": false }
+  }
+}

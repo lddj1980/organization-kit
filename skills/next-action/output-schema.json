@@ -1,0 +1,10 @@
+﻿{
+  "": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["recommendation", "reasoning"],
+  "properties": {
+    "recommendation": { "type": "string" },
+    "reasoning": { "type": "string" },
+    "alternatives": { "type": "array", "items": { "type": "string" } }
+  }
+}

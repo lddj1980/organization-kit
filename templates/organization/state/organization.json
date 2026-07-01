@@ -1,0 +1,23 @@
+{
+  "organization": {
+    "name": "",
+    "purpose": "",
+    "status": "bootstrapping"
+  },
+  "constitution": {
+    "exists": false,
+    "last_updated": ""
+  },
+  "capabilities": {},
+  "health": {
+    "state": "bootstrapping"
+  },
+  "work_packages": {
+    "active": [],
+    "completed": [],
+    "accepted": []
+  },
+  "artifacts": {},
+  "recent_decisions": [],
+  "updated_at": ""
+}

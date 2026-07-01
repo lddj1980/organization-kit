@@ -1,0 +1,12 @@
+﻿{
+  "": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["specRoot"],
+  "properties": {
+    "specRoot": { "type": "string" },
+    "websiteSpecPath": { "type": "string" },
+    "iaPath": { "type": "string" },
+    "pagesPath": { "type": "string" },
+    "seoPath": { "type": "string" }
+  }
+}

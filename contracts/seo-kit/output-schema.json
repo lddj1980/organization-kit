@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["report.md"],
+  "properties": {
+    "seo-audit.md": { "type": "string", "description": "SEO audit report" },
+    "keyword-research.md": { "type": "string", "description": "Keyword research" },
+    "recommendations.md": { "type": "string", "description": "SEO recommendations" },
+    "report.md": { "type": "string", "description": "Implementation report" }
+  }
+}

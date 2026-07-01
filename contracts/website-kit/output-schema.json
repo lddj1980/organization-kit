@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["report.md"],
+  "properties": {
+    "website/": { "type": "string", "description": "Website source code and assets" },
+    "documentation/": { "type": "string", "description": "Documentation files" },
+    "tests/": { "type": "string", "description": "Test files and results" },
+    "report.md": { "type": "string", "description": "Implementation report" }
+  }
+}

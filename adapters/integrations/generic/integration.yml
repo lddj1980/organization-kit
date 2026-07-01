@@ -1,0 +1,43 @@
+schema_version: "1.0"
+integration:
+  id: generic
+  name: "Generic"
+  version: "0.1.0"
+  description: "Plain markdown files for any agent not listed — paste into chat or use as system prompt context."
+
+provides:
+  commands_dir: ".ai/commands"
+  file_pattern: "org.{name}.md"
+  commands:
+    - name: "org.init"
+      file: "framework/commands/org.init.md"
+    - name: "org.discover"
+      file: "framework/commands/org.discover.md"
+    - name: "org.spec"
+      file: "framework/commands/org.spec.md"
+    - name: "org.package"
+      file: "framework/commands/org.package.md"
+    - name: "org.invoke"
+      file: "framework/commands/org.invoke.md"
+    - name: "org.review"
+      file: "framework/commands/org.review.md"
+    - name: "org.accept"
+      file: "framework/commands/org.accept.md"
+    - name: "org.learn"
+      file: "framework/commands/org.learn.md"
+    - name: "org.status"
+      file: "framework/commands/org.status.md"
+    - name: "org.health"
+      file: "framework/commands/org.health.md"
+    - name: "org.next"
+      file: "framework/commands/org.next.md"
+    - name: "org.evolve"
+      file: "framework/commands/org.evolve.md"
+
+notes: |
+  For agents not in the catalog:
+  1. Open .ai/commands/org.{name}.md
+  2. Paste its content into your agent's chat or system prompt
+  3. Replace $ARGUMENTS with your actual input
+
+  Or pass the command file as a context document to your agent session.

@@ -1,0 +1,17 @@
+id: wp-example-visual
+name: "Create brand visual identity"
+kit: visual-kit
+version: 1.0.0
+status: example
+description: "Example work package for Visual Kit"
+inputs:
+  required:
+    - constitution.md
+    - brand.md
+    - visual-spec.md
+outputs:
+  expected:
+    - assets/
+    - style-guide.md
+    - report.md
+

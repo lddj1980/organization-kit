@@ -1,0 +1,18 @@
+id: wp-example-content
+name: "Write launch blog post"
+kit: content-kit
+version: 1.0.0
+status: example
+description: "Example work package for Content Kit"
+inputs:
+  required:
+    - constitution.md
+    - brand.md
+    - audience.md
+    - content-spec.md
+outputs:
+  expected:
+    - articles/
+    - metadata.json
+    - report.md
+

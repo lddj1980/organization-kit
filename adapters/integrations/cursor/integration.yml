@@ -1,0 +1,42 @@
+schema_version: "1.0"
+integration:
+  id: cursor
+  name: "Cursor"
+  version: "0.1.0"
+  description: "Rule files for Cursor agent mode. Commands appear as /org.* in Cursor chat."
+
+provides:
+  commands_dir: ".cursor/rules"
+  file_pattern: "org.{name}.mdc"
+  frontmatter_additions:
+    alwaysApply: false
+  commands:
+    - name: "org.init"
+      file: "framework/commands/org.init.md"
+    - name: "org.discover"
+      file: "framework/commands/org.discover.md"
+    - name: "org.spec"
+      file: "framework/commands/org.spec.md"
+    - name: "org.package"
+      file: "framework/commands/org.package.md"
+    - name: "org.invoke"
+      file: "framework/commands/org.invoke.md"
+    - name: "org.review"
+      file: "framework/commands/org.review.md"
+    - name: "org.accept"
+      file: "framework/commands/org.accept.md"
+    - name: "org.learn"
+      file: "framework/commands/org.learn.md"
+    - name: "org.status"
+      file: "framework/commands/org.status.md"
+    - name: "org.health"
+      file: "framework/commands/org.health.md"
+    - name: "org.next"
+      file: "framework/commands/org.next.md"
+    - name: "org.evolve"
+      file: "framework/commands/org.evolve.md"
+
+notes: |
+  Cursor reads .mdc files from .cursor/rules/
+  Use alwaysApply: false so the rule only activates when explicitly called.
+  $ARGUMENTS is available via Cursor's {userMessage} variable — setup script handles the substitution.

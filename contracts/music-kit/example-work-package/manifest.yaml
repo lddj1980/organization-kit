@@ -1,0 +1,17 @@
+id: wp-example-music
+name: "Produce debut EP"
+kit: music-kit
+version: 1.0.0
+status: example
+description: "Example work package for Music Kit"
+inputs:
+  required:
+    - constitution.md
+    - brand.md
+    - music-spec.md
+outputs:
+  expected:
+    - tracks/
+    - metadata.json
+    - report.md
+

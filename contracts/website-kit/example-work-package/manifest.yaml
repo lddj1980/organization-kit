@@ -1,0 +1,19 @@
+id: wp-example-website
+name: "Build marketing website"
+kit: website-kit
+version: 1.0.0
+status: example
+description: "Example work package for Website Kit"
+inputs:
+  required:
+    - constitution.md
+    - brand.md
+    - audience.md
+    - website-spec.md
+outputs:
+  expected:
+    - website/
+    - documentation/
+    - tests/
+    - report.md
+

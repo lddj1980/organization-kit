@@ -1,0 +1,9 @@
+﻿{
+  "": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["organizationId"],
+  "properties": {
+    "organizationId": { "type": "string" },
+    "section": { "type": "string", "enum": ["mission", "audience", "voice", "values", "capabilities", "limits", "all"] }
+  }
+}

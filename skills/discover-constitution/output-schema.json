@@ -1,0 +1,9 @@
+﻿{
+  "": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["constitutionVersion", "updatedSections"],
+  "properties": {
+    "constitutionVersion": { "type": "string" },
+    "updatedSections": { "type": "array", "items": { "type": "string" } }
+  }
+}

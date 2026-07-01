@@ -1,0 +1,137 @@
+schema_version: "1.0"
+updated_at: "2026-06-29"
+
+integrations:
+  claude:
+    id: claude
+    name: "Claude Code"
+    description: "Skills-based integration for Claude Code CLI and desktop app"
+    commands_dir: ".claude/commands"
+    file_pattern: "org.{name}.md"
+    invocation: "/org.{name}"
+    frontmatter:
+      description: true
+      handoffs: true
+    tags: ["cli", "skills"]
+
+  copilot:
+    id: copilot
+    name: "GitHub Copilot"
+    description: "Prompt files for GitHub Copilot in VS Code and other editors"
+    commands_dir: ".github/prompts"
+    file_pattern: "org.{name}.prompt.md"
+    invocation: "Use prompt: org.{name}"
+    frontmatter:
+      mode: agent
+      description: true
+      tools: ["codebase", "filesystem", "terminal"]
+    tags: ["ide", "vscode"]
+
+  cursor:
+    id: cursor
+    name: "Cursor"
+    description: "Rule files for Cursor agent mode"
+    commands_dir: ".cursor/rules"
+    file_pattern: "org.{name}.mdc"
+    invocation: "/org.{name}"
+    frontmatter:
+      description: true
+      alwaysApply: false
+    tags: ["ide"]
+
+  windsurf:
+    id: windsurf
+    name: "Windsurf"
+    description: "Rule files for Windsurf Cascade"
+    commands_dir: ".windsurf/rules"
+    file_pattern: "org.{name}.md"
+    invocation: "/org.{name}"
+    frontmatter:
+      description: true
+      trigger: "explicit"
+    tags: ["ide"]
+
+  gemini:
+    id: gemini
+    name: "Gemini CLI"
+    description: "Command files for Google Gemini CLI"
+    commands_dir: ".gemini/commands"
+    file_pattern: "org.{name}.md"
+    invocation: "/org.{name}"
+    frontmatter:
+      title: true
+      description: true
+    tags: ["cli"]
+
+  zed:
+    id: zed
+    name: "Zed"
+    description: "Skills for Zed editor agent mode"
+    commands_dir: ".agents/skills"
+    file_pattern: "org.{name}.md"
+    invocation: "/org.{name}"
+    frontmatter:
+      description: true
+    tags: ["ide", "skills"]
+
+  kimi:
+    id: kimi
+    name: "Kimi Code"
+    description: "Skills-based integration for Kimi Code CLI by Moonshot AI"
+    commands_dir: ".kimi-code/skills"
+    file_pattern: "org.{name}.md"
+    invocation: "/org.{name}"
+    frontmatter:
+      description: true
+      handoffs: true
+    confidence: confirmed
+    tags: ["cli", "skills"]
+
+  hermes:
+    id: hermes
+    name: "Hermes"
+    description: "Skills-based integration for Hermes CLI — installs GLOBALLY to ~/.hermes/skills/"
+    commands_dir: "~/.hermes/skills"
+    file_pattern: "org.{name}.md"
+    invocation: "/org.{name}"
+    install_scope: global
+    frontmatter:
+      description: true
+    confidence: confirmed
+    tags: ["cli", "skills", "global"]
+
+  opencode:
+    id: opencode
+    name: "opencode"
+    description: "Command files for opencode CLI — $ARGUMENTS supported natively"
+    commands_dir: ".opencode/commands"
+    file_pattern: "org.{name}.md"
+    invocation: "/org.{name}"
+    frontmatter:
+      description: true
+      agent: "build"
+    confidence: confirmed
+    tags: ["cli"]
+
+  agy:
+    id: agy
+    name: "Antigravity (agy)"
+    description: "Skills-based integration for Antigravity agy CLI"
+    commands_dir: ".agy/skills"
+    file_pattern: "org.{name}.md"
+    invocation: "/org.{name}"
+    frontmatter:
+      description: true
+    confidence: best-effort
+    tags: ["cli", "skills"]
+
+  generic:
+    id: generic
+    name: "Generic"
+    description: "Plain markdown files for any agent not listed above"
+    commands_dir: ".ai/commands"
+    file_pattern: "org.{name}.md"
+    invocation: "copy the contents of org.{name}.md into your agent session"
+    frontmatter:
+      description: true
+    tags: ["generic"]

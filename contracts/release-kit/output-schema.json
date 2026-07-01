@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["report.md"],
+  "properties": {
+    "release-notes.md": { "type": "string", "description": "Release notes" },
+    "changelog.md": { "type": "string", "description": "Changelog" },
+    "assets/": { "type": "string", "description": "Release assets" },
+    "report.md": { "type": "string", "description": "Implementation report" }
+  }
+}

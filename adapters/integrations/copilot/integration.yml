@@ -1,0 +1,52 @@
+schema_version: "1.0"
+integration:
+  id: copilot
+  name: "GitHub Copilot"
+  version: "0.1.0"
+  description: "Prompt files for GitHub Copilot in VS Code, JetBrains, and GitHub.com."
+
+requires:
+  tools:
+    - name: "GitHub Copilot"
+      required: true
+
+provides:
+  commands_dir: ".github/prompts"
+  file_pattern: "org.{name}.prompt.md"
+  frontmatter_additions:
+    mode: agent
+    tools:
+      - codebase
+      - filesystem
+  commands:
+    - name: "org.init"
+      file: "framework/commands/org.init.md"
+    - name: "org.discover"
+      file: "framework/commands/org.discover.md"
+    - name: "org.spec"
+      file: "framework/commands/org.spec.md"
+    - name: "org.package"
+      file: "framework/commands/org.package.md"
+    - name: "org.invoke"
+      file: "framework/commands/org.invoke.md"
+    - name: "org.review"
+      file: "framework/commands/org.review.md"
+    - name: "org.accept"
+      file: "framework/commands/org.accept.md"
+    - name: "org.learn"
+      file: "framework/commands/org.learn.md"
+    - name: "org.status"
+      file: "framework/commands/org.status.md"
+    - name: "org.health"
+      file: "framework/commands/org.health.md"
+    - name: "org.next"
+      file: "framework/commands/org.next.md"
+    - name: "org.evolve"
+      file: "framework/commands/org.evolve.md"
+
+notes: |
+  GitHub Copilot reads prompt files from .github/prompts/*.prompt.md
+  In VS Code: open Copilot Chat → click the paperclip icon → select prompt file
+  The $ARGUMENTS variable should be replaced with {input} in Copilot prompt files.
+  The setup script handles this substitution automatically.
+  Handoffs are rendered as follow-up suggestions in the chat.

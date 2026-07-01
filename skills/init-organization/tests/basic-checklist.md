@@ -1,0 +1,11 @@
+﻿# Checklist — init-organization
+- [ ] Organization directory created
+- [ ] constitution.md exists
+- [ ] knowledge/ directories exist
+- [ ] memory/ files exist (decisions.md, learnings.md, history.md)
+- [ ] state/ files exist (status.json, health.json, capabilities.json, capabilities.md)
+- [ ] specifications/ exists
+- [ ] contracts/ exists
+- [ ] work-packages/ exists
+- [ ] artifacts/ exists
+- [ ] workspace/ exists

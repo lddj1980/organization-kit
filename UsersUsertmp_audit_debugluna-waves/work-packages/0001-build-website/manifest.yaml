@@ -1,0 +1,28 @@
+﻿id: 0001-build-website
+kit: website-kit
+kit_version: 2.0.0
+name: build-website
+status: created
+created: 2026-06-29T20:11:55Z
+updated: 2026-06-29T20:11:55Z
+
+required_inputs:
+  - constitution.md
+  - brand.md
+  - audience.md
+  - website-spec.md
+
+expected_outputs:
+  - website/
+  - documentation/
+  - tests/
+  - report.md
+
+acceptance_criteria:
+  - all required pages implemented
+  - responsive layout
+  - SEO metadata present
+  - brand voice respected
+  - accessibility considered
+  - implementation report included
+  - strategic alignment checked

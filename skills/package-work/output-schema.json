@@ -1,0 +1,10 @@
+﻿{
+  "": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["workPackageId", "path", "status"],
+  "properties": {
+    "workPackageId": { "type": "string" },
+    "path": { "type": "string" },
+    "status": { "type": "string" }
+  }
+}

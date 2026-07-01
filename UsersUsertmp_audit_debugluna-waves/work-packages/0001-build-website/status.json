@@ -1,0 +1,12 @@
+﻿{
+  "id": "0001-build-website",
+  "kit": "website-kit",
+  "status": "created",
+  "contract_loaded": true,
+  "missing_required_inputs": ["constitution.md", "brand.md", "audience.md", "website-spec.md"],
+  "ready_for_execution": false,
+  "review_status": "not_started",
+  "accepted": false,
+  "created": "2026-06-29T20:11:55Z",
+  "updated": "2026-06-29T20:11:55Z"
+}

@@ -1,0 +1,9 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["constitution.md", "analytics-requirements.md"],
+  "properties": {
+    "constitution.md": { "type": "string", "description": "constitution.md input" },
+    "analytics-requirements.md": { "type": "string", "description": "analytics-requirements.md input" }
+  }
+}

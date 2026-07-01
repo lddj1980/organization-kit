@@ -1,0 +1,16 @@
+id: wp-example-analytics
+name: "Website analytics setup"
+kit: analytics-kit
+version: 1.0.0
+status: example
+description: "Example work package for Analytics Kit"
+inputs:
+  required:
+    - constitution.md
+    - analytics-requirements.md
+outputs:
+  expected:
+    - reports/
+    - dashboards/
+    - report.md
+

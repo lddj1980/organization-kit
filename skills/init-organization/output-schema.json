@@ -1,0 +1,11 @@
+﻿{
+  "": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["organizationId", "projectPath", "constitutionVersion"],
+  "properties": {
+    "organizationId": { "type": "string" },
+    "projectPath": { "type": "string" },
+    "constitutionVersion": { "type": "string" },
+    "capabilitiesCount": { "type": "integer" }
+  }
+}

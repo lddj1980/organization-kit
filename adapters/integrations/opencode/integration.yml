@@ -1,0 +1,58 @@
+schema_version: "1.0"
+integration:
+  id: opencode
+  name: "opencode"
+  version: "0.1.0"
+  description: "Command files for opencode CLI (anomalyco/opencode). Commands use /org.{name} in the opencode TUI."
+
+source: "confirmed via opencode official docs — .opencode/commands/"
+
+requires:
+  tools:
+    - name: "opencode"
+      required: true
+
+provides:
+  commands_dir: ".opencode/commands"
+  file_pattern: "org.{name}.md"
+  frontmatter_additions:
+    agent: build
+  commands:
+    - name: "org.init"
+      file: "framework/commands/org.init.md"
+    - name: "org.discover"
+      file: "framework/commands/org.discover.md"
+    - name: "org.spec"
+      file: "framework/commands/org.spec.md"
+    - name: "org.package"
+      file: "framework/commands/org.package.md"
+    - name: "org.invoke"
+      file: "framework/commands/org.invoke.md"
+    - name: "org.review"
+      file: "framework/commands/org.review.md"
+    - name: "org.accept"
+      file: "framework/commands/org.accept.md"
+    - name: "org.learn"
+      file: "framework/commands/org.learn.md"
+    - name: "org.status"
+      file: "framework/commands/org.status.md"
+    - name: "org.health"
+      file: "framework/commands/org.health.md"
+    - name: "org.next"
+      file: "framework/commands/org.next.md"
+    - name: "org.evolve"
+      file: "framework/commands/org.evolve.md"
+
+notes: |
+  opencode reads commands from .opencode/commands/ in the project root.
+  Also supports global commands at ~/.config/opencode/commands/ — use --global flag.
+
+  $ARGUMENTS is natively supported by opencode (no substitution needed).
+  Frontmatter: description (shown in TUI), agent (build/plan), model (optional).
+
+  The handoffs field in the command frontmatter is not used by opencode but
+  is harmlessly ignored. The description and $ARGUMENTS work natively.
+
+  Invocation: type /org.init in the opencode TUI, with optional arguments:
+    /org.init luna-waves
+    /org.discover brand

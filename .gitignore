@@ -1,0 +1,16 @@
+# OS
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# IDE
+.vs/
+.vscode/
+
+# Archives
+*.zip
+*.tar.gz
+
+# Organization Kit
+outputs/
+organization-kit.zip

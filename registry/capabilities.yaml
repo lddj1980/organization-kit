@@ -1,0 +1,105 @@
+schema_version: "1.0"
+description: >
+  Registry of all capabilities supported by Organization Kit and the kits that implement them.
+  Used by /org.next and /org.evolve to understand what exists, what's active, and what depends on what.
+
+capabilities:
+  website:
+    kit: website-kit
+    status: enabled
+    version: 1.0.0
+    description: Digital presence — website design, pages, content, and structure.
+    depends_on:
+      - brand
+      - audience
+
+  content:
+    kit: content-kit
+    status: enabled
+    version: 1.0.0
+    description: Editorial production — articles, posts, scripts, and written assets.
+    depends_on:
+      - brand
+      - audience
+
+  seo:
+    kit: seo-kit
+    status: enabled
+    version: 1.0.0
+    description: Organic discovery — keyword research, on-page SEO, metadata.
+    depends_on:
+      - website
+      - content
+
+  music:
+    kit: music-kit
+    status: enabled
+    version: 1.0.0
+    description: Sonic identity — musical releases, production briefs, sound direction.
+    depends_on:
+      - brand
+
+  visual:
+    kit: visual-kit
+    status: enabled
+    version: 1.0.0
+    description: Visual identity — logo, color system, typography, graphic assets.
+    depends_on:
+      - brand
+
+  video:
+    kit: video-kit
+    status: enabled
+    version: 1.0.0
+    description: Audiovisual narrative — video production briefs, scripts, and assets.
+    depends_on:
+      - brand
+      - audience
+      - visual
+
+  social:
+    kit: social-kit
+    status: enabled
+    version: 1.0.0
+    description: Social media — content calendar, posts, engagement strategy.
+    depends_on:
+      - brand
+      - audience
+      - content
+
+  newsletter:
+    kit: newsletter-kit
+    status: enabled
+    version: 1.0.0
+    description: Email marketing — newsletters, campaigns, subscriber strategy.
+    depends_on:
+      - brand
+      - audience
+      - content
+
+  analytics:
+    kit: analytics-kit
+    status: enabled
+    version: 1.0.0
+    description: Data intelligence — metrics, reports, audience and conversion analysis.
+    depends_on:
+      - website
+      - social
+
+  release:
+    kit: release-kit
+    status: enabled
+    version: 1.0.0
+    description: Launches and releases — release campaigns, announcements, rollout plans.
+    depends_on:
+      - brand
+      - audience
+      - content
+
+# Dependency graph summary (for /org.next reasoning):
+#
+# foundation: brand, audience  (no dependencies — start here)
+# layer 1:    website, content, music, visual
+# layer 2:    seo (needs website+content), video (needs visual)
+# layer 3:    social, newsletter (need content)
+# layer 4:    analytics (needs website+social), release (needs content)

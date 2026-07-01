@@ -1,0 +1,18 @@
+id: wp-example-seo
+name: "SEO audit and optimization"
+kit: seo-kit
+version: 1.0.0
+status: example
+description: "Example work package for SEO Kit"
+inputs:
+  required:
+    - constitution.md
+    - website-spec.md
+    - seo-requirements.md
+outputs:
+  expected:
+    - seo-audit.md
+    - keyword-research.md
+    - recommendations.md
+    - report.md
+

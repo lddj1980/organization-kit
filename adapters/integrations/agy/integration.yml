@@ -1,0 +1,54 @@
+schema_version: "1.0"
+integration:
+  id: agy
+  name: "Antigravity (agy)"
+  version: "0.1.0"
+  description: "Skills-based integration for Antigravity (agy) CLI. Commands installed into .agy/skills/."
+
+source: "best-effort — spec-kit lists agy as skills-based with automatic discovery; path inferred from agent name convention. Verify at https://github.com/antigravitationals/agy if path changes."
+
+requires:
+  tools:
+    - name: "agy"
+      required: true
+
+provides:
+  commands_dir: ".agy/skills"
+  file_pattern: "org.{name}.md"
+  commands:
+    - name: "org.init"
+      file: "framework/commands/org.init.md"
+    - name: "org.discover"
+      file: "framework/commands/org.discover.md"
+    - name: "org.spec"
+      file: "framework/commands/org.spec.md"
+    - name: "org.package"
+      file: "framework/commands/org.package.md"
+    - name: "org.invoke"
+      file: "framework/commands/org.invoke.md"
+    - name: "org.review"
+      file: "framework/commands/org.review.md"
+    - name: "org.accept"
+      file: "framework/commands/org.accept.md"
+    - name: "org.learn"
+      file: "framework/commands/org.learn.md"
+    - name: "org.status"
+      file: "framework/commands/org.status.md"
+    - name: "org.health"
+      file: "framework/commands/org.health.md"
+    - name: "org.next"
+      file: "framework/commands/org.next.md"
+    - name: "org.evolve"
+      file: "framework/commands/org.evolve.md"
+
+notes: |
+  WARNING: The .agy/skills/ path is inferred by convention — not confirmed from
+  official agy documentation (site was unreachable at time of writing).
+
+  spec-kit notes: "Skills-based integration; skills are installed automatically"
+  which suggests agy auto-discovers skills from a standard directory.
+
+  If commands do not appear in agy after install:
+  1. Check agy's documentation for the correct skills/commands directory
+  2. Update commands_dir in this file and re-run setup.sh --integration agy --force
+  3. Open a PR to fix integrations/agy/integration.yml

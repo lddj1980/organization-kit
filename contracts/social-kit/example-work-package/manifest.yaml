@@ -1,0 +1,18 @@
+id: wp-example-social
+name: "Monthly social media content"
+kit: social-kit
+version: 1.0.0
+status: example
+description: "Example work package for Social Kit"
+inputs:
+  required:
+    - constitution.md
+    - brand.md
+    - social-strategy.md
+outputs:
+  expected:
+    - posts/
+    - calendar.md
+    - analytics.md
+    - report.md
+
