@@ -1,5 +1,5 @@
 schema_version: "1.0"
-updated_at: "2026-06-29"
+updated_at: "2026-08-09"
 
 integrations:
   claude:
@@ -116,16 +116,19 @@ integrations:
   openclaude:
     id: openclaude
     name: "OpenClaude"
-    description: "Command files for OpenClaude CLI — Claude Code-compatible slash commands"
-    commands_dir: ".claude/commands"
-    file_pattern: "org.{name}.md"
+    description: "Native OpenClaude skills generated from canonical Organization Kit commands"
+    commands_dir: ".openclaude/skills"
+    global_dir: "~/.openclaude/skills"
+    file_pattern: "org.{name}/SKILL.md"
     invocation: "/org.{name}"
     frontmatter:
+      name: true
       description: true
-      handoffs: true
+      argument-hint: true
+      user-invocable: true
     install_scope: project | global
     confidence: confirmed
-    tags: ["cli", "skills"]
+    tags: ["cli", "skills", "native"]
 
   agy:
     id: agy

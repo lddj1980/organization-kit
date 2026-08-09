@@ -1,51 +1,39 @@
-﻿#!/usr/bin/env pwsh
+#!/usr/bin/env pwsh
 # Organization Kit - Installation Script
-# This script installs the framework for a specific adapter or environment
+# Installs the framework for a specific adapter or environment.
 
 param(
     [string]$TargetPath,
     [string]$Adapter = "claude",
     [switch]$DryRun,
     [switch]$Force,
-    [switch]$SkipCommands
+    [switch]$SkipCommands,
+    [switch]$Global
 )
 
 $ScriptDir = $PSScriptRoot
 $RootDir = Split-Path $ScriptDir -Parent
 $CommandsSrc = Join-Path $RootDir "commands"
+$Commands = @('init','discover','spec','package','invoke','review','accept','learn','status','health','next','evolve','audit','reconcile','normalize')
 
 function Write-Ok  ($msg) { Write-Host "  [OK] $msg" -ForegroundColor Green }
 function Write-Skip($msg) { Write-Host "  [SKIP] $msg" -ForegroundColor Yellow }
 function Write-Info($msg) { Write-Host "  [INFO] $msg" -ForegroundColor Cyan }
-function Write-Error($msg) { Write-Host "  [ERR] $msg" -ForegroundColor Red }
+function Write-Err ($msg) { Write-Host "  [ERR] $msg" -ForegroundColor Red }
+
+$ResolvedTargetPath = if ($TargetPath) { $TargetPath } else { (Get-Location).Path }
 
 Write-Host "`n=====================================================" -ForegroundColor Blue
 Write-Host "  Organization Kit - Installation" -ForegroundColor Blue
 Write-Host "=====================================================" -ForegroundColor Blue
 Write-Host ""
-
-if ($TargetPath) {
-    Write-Info "Target path: $TargetPath"
-} else {
-    Write-Info "Target path: current directory"
-}
-
+Write-Info "Target path: $ResolvedTargetPath"
 Write-Info "Adapter: $Adapter"
 Write-Host ""
 
-# Create necessary directories
-$DirsToCreate = @(
-    ".org-kit",
-    "organizations"
-)
-
-foreach ($dir in $DirsToCreate) {
-    if ($TargetPath) {
-        $fullPath = Join-Path $TargetPath $dir
-    } else {
-        $fullPath = $dir
-    }
-    
+# Create necessary directories.
+foreach ($dir in @('.org-kit', 'organizations')) {
+    $fullPath = Join-Path $ResolvedTargetPath $dir
     if (-not (Test-Path $fullPath)) {
         if ($DryRun) {
             Write-Info "Would create directory: $fullPath"
@@ -58,72 +46,73 @@ foreach ($dir in $DirsToCreate) {
     }
 }
 
-# Copy commands based on adapter (unless -SkipCommands was requested)
 if ($SkipCommands) {
     Write-Info "Skipping command copies (-SkipCommands)"
-}
-
-if (-not $SkipCommands) {
-$AdapterCommandsDir = Join-Path $RootDir "adapters/$Adapter/commands"
-
-if (Test-Path $AdapterCommandsDir) {
-    Write-Info "Using adapter-specific commands from: $AdapterCommandsDir"
-    $CommandsSrc = $AdapterCommandsDir
 } else {
-    Write-Info "Using canonical commands from: $CommandsSrc"
-}
+    if ($Adapter -eq 'openclaude') {
+        # OpenClaude has its own native skill registry. Do not install into the
+        # legacy .claude/commands path: adapt commands/ into SKILL.md files.
+        $OpenClaudeInstaller = Join-Path $RootDir "adapters/integrations/openclaude/install.ps1"
+        if (-not (Test-Path $OpenClaudeInstaller)) {
+            throw "OpenClaude adapter installer not found: $OpenClaudeInstaller"
+        }
 
-$Commands = @('init','discover','spec','package','invoke','review','accept','learn','status','health','next','evolve','audit','reconcile','normalize')
-
-foreach ($cmd in $Commands) {
-    $srcFile = Join-Path $CommandsSrc "org.$cmd.md"
-    
-    if (-not (Test-Path $srcFile)) {
-        Write-Error "Command file not found: $srcFile"
-        continue
-    }
-    
-    if ($TargetPath) {
-        if ($Adapter -eq "claude") {
-            $dstFile = Join-Path $TargetPath ".claude/commands/org.$cmd.md"
-        } else {
-            $dstFile = Join-Path $TargetPath "org-commands/org.$cmd.md"
+        $adapterParams = @{
+            TargetPath = $ResolvedTargetPath
+            DryRun = $DryRun
+            Force = $Force
+            Global = $Global
+        }
+        & $OpenClaudeInstaller @adapterParams
+        if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+            throw "OpenClaude adapter installation failed with exit code $LASTEXITCODE"
         }
     } else {
-        if ($Adapter -eq "claude") {
-            $dstFile = ".claude/commands/org.$cmd.md"
+        $AdapterCommandsDir = Join-Path $RootDir "adapters/$Adapter/commands"
+        if (Test-Path $AdapterCommandsDir) {
+            Write-Info "Using adapter-specific commands from: $AdapterCommandsDir"
+            $CommandsSrc = $AdapterCommandsDir
         } else {
-            $dstFile = "org-commands/org.$cmd.md"
+            Write-Info "Using canonical commands from: $CommandsSrc"
+        }
+
+        foreach ($cmd in $Commands) {
+            $srcFile = Join-Path $CommandsSrc "org.$cmd.md"
+            if (-not (Test-Path $srcFile)) {
+                Write-Err "Command file not found: $srcFile"
+                continue
+            }
+
+            if ($Adapter -eq "claude") {
+                $dstFile = Join-Path $ResolvedTargetPath ".claude/commands/org.$cmd.md"
+            } else {
+                $dstFile = Join-Path $ResolvedTargetPath "org-commands/org.$cmd.md"
+            }
+
+            if ($DryRun) {
+                Write-Info "Would copy: $srcFile -> $dstFile"
+                continue
+            }
+
+            $dstDir = Split-Path $dstFile -Parent
+            if (-not (Test-Path $dstDir)) {
+                New-Item -ItemType Directory -Path $dstDir -Force | Out-Null
+            }
+
+            if ((Test-Path $dstFile) -and -not $Force) {
+                Write-Skip "File exists (use -Force to overwrite): $dstFile"
+                continue
+            }
+
+            Copy-Item $srcFile $dstFile -Force
+            Write-Ok "Copied: org.$cmd.md"
         }
     }
-    
-    if ($DryRun) {
-        Write-Info "Would copy: $srcFile -> $dstFile"
-        continue
-    }
-    
-    $dstDir = Split-Path $dstFile -Parent
-    if (-not (Test-Path $dstDir)) {
-        New-Item -ItemType Directory -Path $dstDir -Force | Out-Null
-    }
-    
-    if ((Test-Path $dstFile) -and -not $Force) {
-        Write-Skip "File exists (use -Force to overwrite): $dstFile"
-        continue
-    }
-    
-    Copy-Item $srcFile $dstFile -Force
-    Write-Ok "Copied: org.$cmd.md"
-}
 }
 
-# Copy framework scripts so commands can run from the project directory
+# Copy framework scripts so commands/skills can run from the project directory.
 $ScriptsSrc = Join-Path $RootDir "scripts"
-if ($TargetPath) {
-    $ScriptsDst = Join-Path $TargetPath "scripts"
-} else {
-    $ScriptsDst = "scripts"
-}
+$ScriptsDst = Join-Path $ResolvedTargetPath "scripts"
 
 if ($DryRun) {
     Write-Info "Would copy scripts/ to: $ScriptsDst"
@@ -138,13 +127,8 @@ if ($DryRun) {
     Write-Ok "Copied framework scripts to: $ScriptsDst"
 }
 
-# Create active organization file
-if ($TargetPath) {
-    $activeFile = Join-Path $TargetPath ".org-kit/active"
-} else {
-    $activeFile = ".org-kit/active"
-}
-
+# Create active organization file.
+$activeFile = Join-Path $ResolvedTargetPath ".org-kit/active"
 if ($DryRun) {
     Write-Info "Would create active file: $activeFile"
 } elseif (-not (Test-Path $activeFile)) {

@@ -1,4 +1,5 @@
-﻿# Organization Kit - Integration Setup (PowerShell)
+#!/usr/bin/env pwsh
+# Organization Kit - Integration Setup (PowerShell)
 # Usage: .\setup.ps1 -Integration claude
 # Example: .\setup.ps1 -Integration claude,copilot,cursor
 
@@ -11,42 +12,42 @@ param(
     [string]$TargetPath
 )
 
-$ScriptDir   = $PSScriptRoot
+$ScriptDir = $PSScriptRoot
 $CommandsSrc = Join-Path $ScriptDir "commands"
-
+$InstallRoot = if ($TargetPath) { $TargetPath } else { (Get-Location).Path }
 $Commands = @('init','discover','spec','package','invoke','review','accept','learn','status','health','next','evolve','audit','reconcile','normalize')
 
 function Write-Ok  ($msg) { Write-Host "  [OK] $msg" -ForegroundColor Green }
 function Write-Skip($msg) { Write-Host "  skip (exists): $msg" -ForegroundColor Yellow }
 function Write-Dry ($msg) { Write-Host "  [dry-run] would copy: $msg" -ForegroundColor Cyan }
 
-if ($TargetPath) {
-    Write-Host "Delegating to scripts/install.ps1..." -ForegroundColor Cyan
-    & "$PSScriptRoot\scripts\install.ps1" -TargetPath $TargetPath
-    return
-}
-
 if ($List) {
     Write-Host "Available integrations:"
-    Write-Host "  claude    - Claude Code        (.claude\commands\)"
-    Write-Host "  copilot   - GitHub Copilot     (.github\prompts\)"
-    Write-Host "  cursor    - Cursor             (.cursor\rules\)"
-    Write-Host "  windsurf  - Windsurf           (.windsurf\rules\)"
-    Write-Host "  gemini    - Gemini CLI         (.gemini\commands\)"
-    Write-Host "  zed       - Zed               (.agents\skills\)"
-    Write-Host "  kimi      - Kimi Code          (.kimi-code\skills\)  [confirmed]"
-    Write-Host "  opencode  - opencode           (.opencode\commands\) [confirmed]"
-    Write-Host "  openclaude - OpenClaude        (.claude\commands\)   [confirmed, -Global -> ~\.claude\commands\]"
-    Write-Host "  hermes    - Hermes             (~\.hermes\skills\)   [confirmed, GLOBAL]"
-    Write-Host "  agy       - Antigravity (agy)  (.agy\skills\)        [best-effort]"
-    Write-Host "  generic   - Generic            (.ai\commands\)"
+    Write-Host "  claude     - Claude Code        (.claude\commands\)"
+    Write-Host "  copilot    - GitHub Copilot     (.github\prompts\)"
+    Write-Host "  cursor     - Cursor             (.cursor\rules\)"
+    Write-Host "  windsurf   - Windsurf           (.windsurf\rules\)"
+    Write-Host "  gemini     - Gemini CLI         (.gemini\commands\)"
+    Write-Host "  zed        - Zed                (.agents\skills\)"
+    Write-Host "  kimi       - Kimi Code          (.kimi-code\skills\)  [confirmed]"
+    Write-Host "  opencode   - opencode           (.opencode\commands\) [confirmed]"
+    Write-Host "  openclaude - OpenClaude         (.openclaude\skills\<command>\SKILL.md) [native]"
+    Write-Host "               -Global -> ~\.openclaude\skills\ (or OPENCLAUDE_CONFIG_DIR\skills)"
+    Write-Host "  hermes     - Hermes             (~\.hermes\skills\)   [confirmed, GLOBAL]"
+    Write-Host "  agy        - Antigravity (agy)  (.agy\skills\)        [best-effort]"
+    Write-Host "  generic    - Generic            (.ai\commands\)"
     exit 0
 }
 
 if (-not $Integration) {
-    Write-Host "Usage: .\setup.ps1 -Integration <agent> [-DryRun] [-Force]"
+    Write-Host "Usage: .\setup.ps1 -Integration <agent> [-DryRun] [-Force] [-TargetPath <path>]"
     Write-Host "Run .\setup.ps1 -List to see available integrations"
     exit 1
+}
+
+function Resolve-Destination {
+    param([Parameter(Mandatory)][string]$RelativePath)
+    return Join-Path $InstallRoot $RelativePath
 }
 
 function Copy-Command {
@@ -58,7 +59,8 @@ function Copy-Command {
     if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
 
     if ((Test-Path $Dst) -and -not $Force) {
-        Write-Skip $Dst; return
+        Write-Skip $Dst
+        return
     }
 
     if ($ArgsVar -ne '$ARGUMENTS') {
@@ -70,12 +72,6 @@ function Copy-Command {
     Write-Ok $Dst
 }
 
-function Add-FrontmatterKey {
-    param([string]$Content, [string]$Key, [string]$Value)
-    # Insert after first ---
-    $Content -replace '(?m)^---\r?\n', "---`n$Key`: $Value`n"
-}
-
 function Install-Integration {
     param([string]$Agent)
 
@@ -83,28 +79,21 @@ function Install-Integration {
 
     switch ($Agent) {
         'claude' {
-            $dir = '.claude\commands'
+            $dir = Resolve-Destination '.claude\commands'
             foreach ($cmd in $Commands) {
-                Copy-Command `
-                    (Join-Path $CommandsSrc "org.$cmd.md") `
-                    (Join-Path $dir "org.$cmd.md")
+                Copy-Command (Join-Path $CommandsSrc "org.$cmd.md") (Join-Path $dir "org.$cmd.md")
             }
             Write-Host "`n  Invoke with: /org.{command}"
         }
 
         'copilot' {
-            $dir = '.github\prompts'
+            $dir = Resolve-Destination '.github\prompts'
             foreach ($cmd in $Commands) {
                 $src = Join-Path $CommandsSrc "org.$cmd.md"
                 $dst = Join-Path $dir "org.$cmd.prompt.md"
-
                 if ($DryRun) { Write-Dry "$src -> $dst"; continue }
-
-                $dir2 = Split-Path $dst -Parent
-                if (-not (Test-Path $dir2)) { New-Item -ItemType Directory -Path $dir2 -Force | Out-Null }
-
                 if ((Test-Path $dst) -and -not $Force) { Write-Skip $dst; continue }
-
+                New-Item -ItemType Directory -Path (Split-Path $dst -Parent) -Force | Out-Null
                 $content = Get-Content $src -Raw
                 $content = $content -replace '(?m)^---\r?\n', "---`nmode: agent`ntools:`n  - codebase`n  - filesystem`n"
                 $content = $content -replace '\$ARGUMENTS', '{input}'
@@ -115,93 +104,66 @@ function Install-Integration {
         }
 
         'cursor' {
-            $dir = '.cursor\rules'
+            $dir = Resolve-Destination '.cursor\rules'
             foreach ($cmd in $Commands) {
                 $src = Join-Path $CommandsSrc "org.$cmd.md"
                 $dst = Join-Path $dir "org.$cmd.mdc"
-
                 if ($DryRun) { Write-Dry "$src -> $dst"; continue }
-
-                $dir2 = Split-Path $dst -Parent
-                if (-not (Test-Path $dir2)) { New-Item -ItemType Directory -Path $dir2 -Force | Out-Null }
-
                 if ((Test-Path $dst) -and -not $Force) { Write-Skip $dst; continue }
-
-                $content = Get-Content $src -Raw
-                $content = $content -replace '(?m)^---\r?\n', "---`nalwaysApply: false`n"
-                $content | Set-Content $dst -Encoding utf8
+                New-Item -ItemType Directory -Path (Split-Path $dst -Parent) -Force | Out-Null
+                (Get-Content $src -Raw) -replace '(?m)^---\r?\n', "---`nalwaysApply: false`n" | Set-Content $dst -Encoding utf8
                 Write-Ok $dst
             }
             Write-Host "`n  Invoke with: /org.{command}"
         }
 
         'windsurf' {
-            $dir = '.windsurf\rules'
+            $dir = Resolve-Destination '.windsurf\rules'
             foreach ($cmd in $Commands) {
                 $src = Join-Path $CommandsSrc "org.$cmd.md"
                 $dst = Join-Path $dir "org.$cmd.md"
-
                 if ($DryRun) { Write-Dry "$src -> $dst"; continue }
-
-                $dir2 = Split-Path $dst -Parent
-                if (-not (Test-Path $dir2)) { New-Item -ItemType Directory -Path $dir2 -Force | Out-Null }
-
                 if ((Test-Path $dst) -and -not $Force) { Write-Skip $dst; continue }
-
-                $content = Get-Content $src -Raw
-                $content = $content -replace '(?m)^---\r?\n', "---`ntrigger: explicit`n"
-                $content | Set-Content $dst -Encoding utf8
+                New-Item -ItemType Directory -Path (Split-Path $dst -Parent) -Force | Out-Null
+                (Get-Content $src -Raw) -replace '(?m)^---\r?\n', "---`ntrigger: explicit`n" | Set-Content $dst -Encoding utf8
                 Write-Ok $dst
             }
             Write-Host "`n  Invoke with: /org.{command}"
         }
 
         'gemini' {
-            $dir = '.gemini\commands'
+            $dir = Resolve-Destination '.gemini\commands'
             foreach ($cmd in $Commands) {
-                Copy-Command `
-                    (Join-Path $CommandsSrc "org.$cmd.md") `
-                    (Join-Path $dir "org.$cmd.md")
+                Copy-Command (Join-Path $CommandsSrc "org.$cmd.md") (Join-Path $dir "org.$cmd.md")
             }
             Write-Host "`n  Invoke with: /org.{command}"
         }
 
         'zed' {
-            $dir = '.agents\skills'
+            $dir = Resolve-Destination '.agents\skills'
             foreach ($cmd in $Commands) {
-                Copy-Command `
-                    (Join-Path $CommandsSrc "org.$cmd.md") `
-                    (Join-Path $dir "org.$cmd.md")
+                Copy-Command (Join-Path $CommandsSrc "org.$cmd.md") (Join-Path $dir "org.$cmd.md")
             }
             Write-Host "`n  Invoke with: /org.{command}"
         }
 
         'kimi' {
-            $dir = '.kimi-code\skills'
+            $dir = Resolve-Destination '.kimi-code\skills'
             foreach ($cmd in $Commands) {
-                Copy-Command `
-                    (Join-Path $CommandsSrc "org.$cmd.md") `
-                    (Join-Path $dir "org.$cmd.md")
+                Copy-Command (Join-Path $CommandsSrc "org.$cmd.md") (Join-Path $dir "org.$cmd.md")
             }
             Write-Host "`n  Invoke with: /org.{command}"
         }
 
         'opencode' {
-            $dir = '.opencode\commands'
+            $dir = Resolve-Destination '.opencode\commands'
             foreach ($cmd in $Commands) {
                 $src = Join-Path $CommandsSrc "org.$cmd.md"
                 $dst = Join-Path $dir "org.$cmd.md"
-
                 if ($DryRun) { Write-Dry "$src -> $dst"; continue }
-
-                $dir2 = Split-Path $dst -Parent
-                if (-not (Test-Path $dir2)) { New-Item -ItemType Directory -Path $dir2 -Force | Out-Null }
-
                 if ((Test-Path $dst) -and -not $Force) { Write-Skip $dst; continue }
-
-                $content = Get-Content $src -Raw
-                $content = $content -replace '(?m)^---\r?\n', "---`nagent: build`n"
-                $content | Set-Content $dst -Encoding utf8
+                New-Item -ItemType Directory -Path (Split-Path $dst -Parent) -Force | Out-Null
+                (Get-Content $src -Raw) -replace '(?m)^---\r?\n', "---`nagent: build`n" | Set-Content $dst -Encoding utf8
                 Write-Ok $dst
             }
             Write-Host "`n  Invoke with: /org.{command} in the opencode TUI"
@@ -209,87 +171,74 @@ function Install-Integration {
         }
 
         'openclaude' {
-            # OpenClaude follows the Claude Code command discovery conventions.
-            # Default: project-level .claude\commands\. With -Global: also installs
-            # to %USERPROFILE%\.claude\commands\ for ALL OpenClaude sessions.
-            $dir = '.claude\commands'
-            foreach ($cmd in $Commands) {
-                Copy-Command `
-                    (Join-Path $CommandsSrc "org.$cmd.md") `
-                    (Join-Path $dir "org.$cmd.md")
+            $installer = Join-Path $ScriptDir 'adapters\integrations\openclaude\install.ps1'
+            if (-not (Test-Path $installer)) {
+                throw "OpenClaude native adapter not found: $installer"
             }
-            if ($Global) {
-                $gdir = Join-Path $env:USERPROFILE ".claude\commands"
-                Write-Host "  Note: installing GLOBALLY to $gdir" -ForegroundColor Yellow
-                Write-Host "  Commands will be available in ALL OpenClaude sessions.`n"
-                foreach ($cmd in $Commands) {
-                    Copy-Command `
-                        (Join-Path $CommandsSrc "org.$cmd.md") `
-                        (Join-Path $gdir "org.$cmd.md")
-                }
+            $params = @{
+                TargetPath = $InstallRoot
+                DryRun = $DryRun
+                Force = $Force
+                Global = $Global
             }
-            Write-Host "`n  Invoke with: /org.{command}"
+            & $installer @params
+            if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+                throw "OpenClaude adapter failed with exit code $LASTEXITCODE"
+            }
         }
 
         'hermes' {
-            # Hermes installs GLOBALLY into %USERPROFILE%\.hermes\skills\
-            $dir = Join-Path $env:USERPROFILE ".hermes\skills"
+            $dir = Join-Path ([Environment]::GetFolderPath('UserProfile')) '.hermes\skills'
             Write-Host "  Note: Hermes installs GLOBALLY to $dir" -ForegroundColor Yellow
-            Write-Host "  Skills will be available in ALL your Hermes sessions.`n"
             foreach ($cmd in $Commands) {
-                Copy-Command `
-                    (Join-Path $CommandsSrc "org.$cmd.md") `
-                    (Join-Path $dir "org.$cmd.md")
+                Copy-Command (Join-Path $CommandsSrc "org.$cmd.md") (Join-Path $dir "org.$cmd.md")
             }
             Write-Host "`n  Invoke with: /org.{command} in any Hermes session"
         }
 
         'agy' {
-            $dir = '.agy\skills'
+            $dir = Resolve-Destination '.agy\skills'
             Write-Host "  Note: agy path (.agy\skills\) is best-effort - verify with your agy version." -ForegroundColor Yellow
-            Write-Host ""
             foreach ($cmd in $Commands) {
-                Copy-Command `
-                    (Join-Path $CommandsSrc "org.$cmd.md") `
-                    (Join-Path $dir "org.$cmd.md")
+                Copy-Command (Join-Path $CommandsSrc "org.$cmd.md") (Join-Path $dir "org.$cmd.md")
             }
             Write-Host "`n  Invoke with: /org.{command}"
-            Write-Host "  If commands don't appear, check integrations\agy\integration.yml for path correction."
         }
 
         'generic' {
-            $dir = '.ai\commands'
+            $dir = Resolve-Destination '.ai\commands'
             foreach ($cmd in $Commands) {
-                Copy-Command `
-                    (Join-Path $CommandsSrc "org.$cmd.md") `
-                    (Join-Path $dir "org.$cmd.md")
+                Copy-Command (Join-Path $CommandsSrc "org.$cmd.md") (Join-Path $dir "org.$cmd.md")
             }
             Write-Host "`n  Usage: paste the content of .ai\commands\org.{command}.md into your agent session"
         }
 
         default {
-            Write-Host "  Unknown integration: $Agent" -ForegroundColor Red
-            Write-Host "  Run .\setup.ps1 -List to see available integrations"
+            throw "Unknown integration: $Agent. Run .\setup.ps1 -List to see available integrations."
         }
     }
 }
 
-# Ensure .org-kit state directory exists
-if (-not (Test-Path '.org-kit')) {
-    New-Item -ItemType Directory -Path '.org-kit' -Force | Out-Null
+if (-not (Test-Path $InstallRoot)) {
+    New-Item -ItemType Directory -Path $InstallRoot -Force | Out-Null
 }
-if (-not (Test-Path '.org-kit\active')) {
-    "# Active organization (set by /org.init or manually)" | Set-Content '.org-kit\active' -Encoding utf8
-    Write-Ok "Created .org-kit\active (empty - run /org.init to set)"
+
+$stateDir = Resolve-Destination '.org-kit'
+if (-not (Test-Path $stateDir)) {
+    New-Item -ItemType Directory -Path $stateDir -Force | Out-Null
+}
+$activeFile = Join-Path $stateDir 'active'
+if (-not (Test-Path $activeFile)) {
+    "# Active organization (set by /org.init or manually)" | Set-Content $activeFile -Encoding utf8
+    Write-Ok "Created $activeFile (empty - run /org.init to set)"
 }
 
 foreach ($agent in $Integration) {
     Install-Integration $agent
 }
 
-# Copy framework scripts so commands can run from this directory
 $ScriptsSrc = Join-Path $ScriptDir "scripts"
-$ScriptsDst = "scripts"
+$ScriptsDst = Resolve-Destination 'scripts'
 if ($DryRun) {
     Write-Dry "Copy scripts/ -> $ScriptsDst"
 } else {

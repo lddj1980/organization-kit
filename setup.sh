@@ -1,15 +1,12 @@
 #!/usr/bin/env bash
 # Organization Kit — Integration Setup
-# Usage: ./setup.sh --integration <agent> [--dry-run] [--force]
-# Example: ./setup.sh --integration claude
-# Example: ./setup.sh --integration claude copilot cursor
+# Usage: ./setup.sh --integration <agent> [--dry-run] [--force] [--global]
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMMANDS_SRC="$SCRIPT_DIR/commands"
 
-# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -20,8 +17,8 @@ INTEGRATIONS=()
 DRY_RUN=false
 FORCE=false
 GLOBAL=false
+TARGET_PATH="$(pwd)"
 
-# Parse arguments
 while [[ $# -gt 0 ]]; do
   case $1 in
     --integration|-i)
@@ -31,23 +28,28 @@ while [[ $# -gt 0 ]]; do
         shift
       done
       ;;
+    --target)
+      TARGET_PATH="$2"
+      shift 2
+      ;;
     --dry-run) DRY_RUN=true; shift ;;
     --force)   FORCE=true;   shift ;;
     --global)  GLOBAL=true;  shift ;;
     --list)
       echo "Available integrations:"
-      echo "  claude    — Claude Code        (.claude/commands/)"
-      echo "  copilot   — GitHub Copilot     (.github/prompts/)"
-      echo "  cursor    — Cursor             (.cursor/rules/)"
-      echo "  windsurf  — Windsurf           (.windsurf/rules/)"
-      echo "  gemini    — Gemini CLI         (.gemini/commands/)"
-      echo "  zed       — Zed               (.agents/skills/)"
-      echo "  kimi      — Kimi Code          (.kimi-code/skills/)  [confirmed]"
-      echo "  opencode  — opencode           (.opencode/commands/) [confirmed]"
-      echo "  openclaude — OpenClaude         (.claude/commands/)   [confirmed, --global → ~/.claude/commands/]"
-      echo "  hermes    — Hermes             (~/.hermes/skills/)   [confirmed, GLOBAL]"
-      echo "  agy       — Antigravity (agy)  (.agy/skills/)        [best-effort]"
-      echo "  generic   — Generic            (.ai/commands/)"
+      echo "  claude     — Claude Code        (.claude/commands/)"
+      echo "  copilot    — GitHub Copilot     (.github/prompts/)"
+      echo "  cursor     — Cursor             (.cursor/rules/)"
+      echo "  windsurf   — Windsurf           (.windsurf/rules/)"
+      echo "  gemini     — Gemini CLI         (.gemini/commands/)"
+      echo "  zed        — Zed                (.agents/skills/)"
+      echo "  kimi       — Kimi Code          (.kimi-code/skills/)  [confirmed]"
+      echo "  opencode   — opencode           (.opencode/commands/) [confirmed]"
+      echo "  openclaude — OpenClaude         (.openclaude/skills/<command>/SKILL.md) [native]"
+      echo "               --global → ~/.openclaude/skills/ (or OPENCLAUDE_CONFIG_DIR/skills)"
+      echo "  hermes     — Hermes             (~/.hermes/skills/)   [confirmed, GLOBAL]"
+      echo "  agy        — Antigravity (agy)  (.agy/skills/)        [best-effort]"
+      echo "  generic    — Generic            (.ai/commands/)"
       exit 0
       ;;
     *) echo "Unknown option: $1"; exit 1 ;;
@@ -55,17 +57,22 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ ${#INTEGRATIONS[@]} -eq 0 ]]; then
-  echo "Usage: ./setup.sh --integration <agent> [--dry-run] [--force]"
+  echo "Usage: ./setup.sh --integration <agent> [--dry-run] [--force] [--target <path>]"
   echo "Run ./setup.sh --list to see available integrations"
   exit 1
 fi
 
 COMMANDS=(init discover spec package invoke review accept learn status health next evolve audit reconcile normalize)
 
+resolve_destination() {
+  local rel="$1"
+  printf '%s/%s' "$TARGET_PATH" "$rel"
+}
+
 copy_command() {
   local src="$1"
   local dst="$2"
-  local args_var="$3"  # variable name used for $ARGUMENTS in this agent
+  local args_var="$3"
 
   if [[ "$DRY_RUN" == true ]]; then
     echo "  [dry-run] would copy: $src → $dst"
@@ -79,7 +86,6 @@ copy_command() {
     return
   fi
 
-  # Substitute $ARGUMENTS with the agent's variable if needed
   if [[ "$args_var" != '$ARGUMENTS' ]]; then
     sed "s/\\\$ARGUMENTS/$args_var/g" "$src" > "$dst"
   else
@@ -91,244 +97,136 @@ copy_command() {
 
 install_integration() {
   local agent="$1"
-
   echo -e "\n${BLUE}Installing: $agent${NC}"
 
   case $agent in
     claude)
-      local dir=".claude/commands"
+      local dir
+      dir="$(resolve_destination '.claude/commands')"
       for cmd in "${COMMANDS[@]}"; do
-        copy_command \
-          "$COMMANDS_SRC/org.$cmd.md" \
-          "$dir/org.$cmd.md" \
-          '$ARGUMENTS'
+        copy_command "$COMMANDS_SRC/org.$cmd.md" "$dir/org.$cmd.md" '$ARGUMENTS'
       done
       echo -e "\n  Invoke with: /org.{command}"
       ;;
 
     copilot)
-      local dir=".github/prompts"
+      local dir
+      dir="$(resolve_destination '.github/prompts')"
       for cmd in "${COMMANDS[@]}"; do
-        # Copilot uses {input} instead of $ARGUMENTS and needs mode: agent in frontmatter
         local src="$COMMANDS_SRC/org.$cmd.md"
         local dst="$dir/org.$cmd.prompt.md"
-
-        if [[ "$DRY_RUN" == true ]]; then
-          echo "  [dry-run] would copy: $src → $dst"
-          continue
-        fi
-
+        if [[ "$DRY_RUN" == true ]]; then echo "  [dry-run] would copy: $src → $dst"; continue; fi
         mkdir -p "$dir"
-        if [[ -f "$dst" && "$FORCE" == false ]]; then
-          echo -e "  ${YELLOW}skip${NC} (exists): $dst"
-          continue
-        fi
-
-        # Read source, adjust frontmatter for Copilot
-        local content
-        content=$(cat "$src")
-        # Add 'tools' to frontmatter and replace $ARGUMENTS
-        echo "$content" \
-          | sed 's/---/---\nmode: agent\ntools:\n  - codebase\n  - filesystem/' \
-          | sed 's/\$ARGUMENTS/{input}/g' \
-          | head -1000 > "$dst" 2>/dev/null || cp "$src" "$dst"
-
+        if [[ -f "$dst" && "$FORCE" == false ]]; then echo -e "  ${YELLOW}skip${NC} (exists): $dst"; continue; fi
+        sed '0,/---/s//---\nmode: agent\ntools:\n  - codebase\n  - filesystem/' "$src" | sed 's/\$ARGUMENTS/{input}/g' > "$dst"
         echo -e "  ${GREEN}✓${NC} $dst"
       done
-      echo -e "\n  Use via: VS Code Copilot Chat → 📎 → select prompt"
       ;;
 
     cursor)
-      local dir=".cursor/rules"
+      local dir
+      dir="$(resolve_destination '.cursor/rules')"
       for cmd in "${COMMANDS[@]}"; do
         local src="$COMMANDS_SRC/org.$cmd.md"
         local dst="$dir/org.$cmd.mdc"
-
-        if [[ "$DRY_RUN" == true ]]; then
-          echo "  [dry-run] would copy: $src → $dst"
-          continue
-        fi
-
+        if [[ "$DRY_RUN" == true ]]; then echo "  [dry-run] would copy: $src → $dst"; continue; fi
         mkdir -p "$dir"
-        if [[ -f "$dst" && "$FORCE" == false ]]; then
-          echo -e "  ${YELLOW}skip${NC} (exists): $dst"
-          continue
-        fi
-
-        # Add alwaysApply: false to frontmatter
-        sed 's/---/---\nalwaysApply: false/' "$src" > "$dst" 2>/dev/null || cp "$src" "$dst"
+        if [[ -f "$dst" && "$FORCE" == false ]]; then echo -e "  ${YELLOW}skip${NC} (exists): $dst"; continue; fi
+        sed '0,/---/s//---\nalwaysApply: false/' "$src" > "$dst"
         echo -e "  ${GREEN}✓${NC} $dst"
       done
-      echo -e "\n  Invoke with: /org.{command}"
       ;;
 
     windsurf)
-      local dir=".windsurf/rules"
+      local dir
+      dir="$(resolve_destination '.windsurf/rules')"
       for cmd in "${COMMANDS[@]}"; do
         local src="$COMMANDS_SRC/org.$cmd.md"
         local dst="$dir/org.$cmd.md"
-
-        if [[ "$DRY_RUN" == true ]]; then
-          echo "  [dry-run] would copy: $src → $dst"
-          continue
-        fi
-
+        if [[ "$DRY_RUN" == true ]]; then echo "  [dry-run] would copy: $src → $dst"; continue; fi
         mkdir -p "$dir"
-        if [[ -f "$dst" && "$FORCE" == false ]]; then
-          echo -e "  ${YELLOW}skip${NC} (exists): $dst"
-          continue
-        fi
-
-        sed 's/---/---\ntrigger: explicit/' "$src" > "$dst" 2>/dev/null || cp "$src" "$dst"
+        if [[ -f "$dst" && "$FORCE" == false ]]; then echo -e "  ${YELLOW}skip${NC} (exists): $dst"; continue; fi
+        sed '0,/---/s//---\ntrigger: explicit/' "$src" > "$dst"
         echo -e "  ${GREEN}✓${NC} $dst"
       done
-      echo -e "\n  Invoke with: /org.{command}"
       ;;
 
     gemini)
-      local dir=".gemini/commands"
-      for cmd in "${COMMANDS[@]}"; do
-        copy_command \
-          "$COMMANDS_SRC/org.$cmd.md" \
-          "$dir/org.$cmd.md" \
-          '$ARGUMENTS'
-      done
-      echo -e "\n  Invoke with: /org.{command}"
+      local dir
+      dir="$(resolve_destination '.gemini/commands')"
+      for cmd in "${COMMANDS[@]}"; do copy_command "$COMMANDS_SRC/org.$cmd.md" "$dir/org.$cmd.md" '$ARGUMENTS'; done
       ;;
 
     zed)
-      local dir=".agents/skills"
-      for cmd in "${COMMANDS[@]}"; do
-        copy_command \
-          "$COMMANDS_SRC/org.$cmd.md" \
-          "$dir/org.$cmd.md" \
-          '$ARGUMENTS'
-      done
-      echo -e "\n  Invoke with: /org.{command}"
+      local dir
+      dir="$(resolve_destination '.agents/skills')"
+      for cmd in "${COMMANDS[@]}"; do copy_command "$COMMANDS_SRC/org.$cmd.md" "$dir/org.$cmd.md" '$ARGUMENTS'; done
       ;;
 
     kimi)
-      local dir=".kimi-code/skills"
-      for cmd in "${COMMANDS[@]}"; do
-        copy_command \
-          "$COMMANDS_SRC/org.$cmd.md" \
-          "$dir/org.$cmd.md" \
-          '$ARGUMENTS'
-      done
-      echo -e "\n  Invoke with: /org.{command}"
+      local dir
+      dir="$(resolve_destination '.kimi-code/skills')"
+      for cmd in "${COMMANDS[@]}"; do copy_command "$COMMANDS_SRC/org.$cmd.md" "$dir/org.$cmd.md" '$ARGUMENTS'; done
       ;;
 
     opencode)
-      local dir=".opencode/commands"
+      local dir
+      dir="$(resolve_destination '.opencode/commands')"
       for cmd in "${COMMANDS[@]}"; do
         local src="$COMMANDS_SRC/org.$cmd.md"
         local dst="$dir/org.$cmd.md"
-
-        if [[ "$DRY_RUN" == true ]]; then
-          echo "  [dry-run] would copy: $src → $dst"
-          continue
-        fi
-
+        if [[ "$DRY_RUN" == true ]]; then echo "  [dry-run] would copy: $src → $dst"; continue; fi
         mkdir -p "$dir"
-        if [[ -f "$dst" && "$FORCE" == false ]]; then
-          echo -e "  ${YELLOW}skip${NC} (exists): $dst"
-          continue
-        fi
-
-        # Add agent: build to frontmatter (opencode-specific)
-        sed 's/---/---\nagent: build/' "$src" > "$dst" 2>/dev/null || cp "$src" "$dst"
+        if [[ -f "$dst" && "$FORCE" == false ]]; then echo -e "  ${YELLOW}skip${NC} (exists): $dst"; continue; fi
+        sed '0,/---/s//---\nagent: build/' "$src" > "$dst"
         echo -e "  ${GREEN}✓${NC} $dst"
       done
-      echo -e "\n  Invoke with: /org.{command} in the opencode TUI"
-      echo -e "  Note: \$ARGUMENTS is natively supported by opencode"
       ;;
 
     openclaude)
-      # OpenClaude follows the Claude Code command discovery conventions.
-      # Default: project-level .claude/commands/. With --global: also installs
-      # to ~/.claude/commands/ so commands work in ALL OpenClaude sessions.
-      local dir=".claude/commands"
-      for cmd in "${COMMANDS[@]}"; do
-        copy_command \
-          "$COMMANDS_SRC/org.$cmd.md" \
-          "$dir/org.$cmd.md" \
-          '$ARGUMENTS'
-      done
-      if [[ "$GLOBAL" == true ]]; then
-        local gdir="${HOME}/.claude/commands"
-        echo -e "  ${YELLOW}Note: installing GLOBALLY to ${gdir}/${NC}"
-        echo -e "  Commands will be available in ALL OpenClaude sessions.\n"
-        for cmd in "${COMMANDS[@]}"; do
-          copy_command \
-            "$COMMANDS_SRC/org.$cmd.md" \
-            "$gdir/org.$cmd.md" \
-            '$ARGUMENTS'
-        done
-      fi
-      echo -e "\n  Invoke with: /org.{command}"
+      local installer="$SCRIPT_DIR/adapters/integrations/openclaude/install.sh"
+      if [[ ! -f "$installer" ]]; then echo "OpenClaude native adapter not found: $installer" >&2; return 1; fi
+      local args=(--target "$TARGET_PATH")
+      [[ "$DRY_RUN" == true ]] && args+=(--dry-run)
+      [[ "$FORCE" == true ]] && args+=(--force)
+      [[ "$GLOBAL" == true ]] && args+=(--global)
+      bash "$installer" "${args[@]}"
       ;;
 
     hermes)
-      # Hermes installs GLOBALLY into ~/.hermes/skills/
       local dir="${HOME}/.hermes/skills"
-      echo -e "  ${YELLOW}Note: Hermes installs GLOBALLY to ${dir}/${NC}"
-      echo -e "  Skills will be available in ALL your Hermes sessions.\n"
-      for cmd in "${COMMANDS[@]}"; do
-        copy_command \
-          "$COMMANDS_SRC/org.$cmd.md" \
-          "$dir/org.$cmd.md" \
-          '$ARGUMENTS'
-      done
-      echo -e "\n  Invoke with: /org.{command} in any Hermes session"
+      for cmd in "${COMMANDS[@]}"; do copy_command "$COMMANDS_SRC/org.$cmd.md" "$dir/org.$cmd.md" '$ARGUMENTS'; done
       ;;
 
     agy)
-      local dir=".agy/skills"
-      echo -e "  ${YELLOW}Note: agy path (.agy/skills/) is best-effort — verify with your agy version.${NC}\n"
-      for cmd in "${COMMANDS[@]}"; do
-        copy_command \
-          "$COMMANDS_SRC/org.$cmd.md" \
-          "$dir/org.$cmd.md" \
-          '$ARGUMENTS'
-      done
-      echo -e "\n  Invoke with: /org.{command}"
-      echo -e "  If commands don't appear, check integrations/agy/integration.yml for path correction."
+      local dir
+      dir="$(resolve_destination '.agy/skills')"
+      for cmd in "${COMMANDS[@]}"; do copy_command "$COMMANDS_SRC/org.$cmd.md" "$dir/org.$cmd.md" '$ARGUMENTS'; done
       ;;
 
     generic)
-      local dir=".ai/commands"
-      for cmd in "${COMMANDS[@]}"; do
-        copy_command \
-          "$COMMANDS_SRC/org.$cmd.md" \
-          "$dir/org.$cmd.md" \
-          '$ARGUMENTS'
-      done
-      echo -e "\n  Usage: paste the content of .ai/commands/org.{command}.md into your agent session"
+      local dir
+      dir="$(resolve_destination '.ai/commands')"
+      for cmd in "${COMMANDS[@]}"; do copy_command "$COMMANDS_SRC/org.$cmd.md" "$dir/org.$cmd.md" '$ARGUMENTS'; done
       ;;
 
     *)
       echo -e "  ${RED}Unknown integration: $agent${NC}"
-      echo "  Run ./setup.sh --list to see available integrations"
       return 1
       ;;
   esac
 }
 
-# Ensure .org-kit/active state directory exists
-mkdir -p ".org-kit"
-if [[ ! -f ".org-kit/active" ]]; then
-  echo "# Active organization (set by /org.init or manually)" > ".org-kit/active"
-  echo -e "${GREEN}✓${NC} Created .org-kit/active (empty — run /org.init to set)"
+mkdir -p "$TARGET_PATH/.org-kit"
+if [[ ! -f "$TARGET_PATH/.org-kit/active" ]]; then
+  echo "# Active organization (set by /org.init or manually)" > "$TARGET_PATH/.org-kit/active"
+  echo -e "${GREEN}✓${NC} Created $TARGET_PATH/.org-kit/active"
 fi
 
-# Install each requested integration
-for integration in "${INTEGRATIONS[@]}"; do
-  install_integration "$integration"
-done
+for integration in "${INTEGRATIONS[@]}"; do install_integration "$integration"; done
 
-# Copy framework scripts so commands can run from this directory
 SCRIPTS_SRC="$SCRIPT_DIR/scripts"
-SCRIPTS_DST="./scripts"
+SCRIPTS_DST="$TARGET_PATH/scripts"
 if [[ "$DRY_RUN" == true ]]; then
   echo "  [dry-run] would copy: $SCRIPTS_SRC → $SCRIPTS_DST"
 else
@@ -338,16 +236,5 @@ else
   echo -e "${GREEN}✓${NC} Copied framework scripts to $SCRIPTS_DST"
 fi
 
-# The scripts/ engine runs on PowerShell 7+ (pwsh), which is cross-platform
-# (Linux/macOS/Windows) but isn't preinstalled on most Linux/macOS systems.
-if [[ "$DRY_RUN" == false ]] && ! command -v pwsh >/dev/null 2>&1; then
-  echo -e "\n${YELLOW}Note: 'pwsh' (PowerShell 7+) was not found on PATH.${NC}"
-  echo "  The scripts/ engine (init-project.ps1, create-work-package.ps1, ...) requires it."
-  echo "  Install: https://learn.microsoft.com/powershell/scripting/install/installing-powershell"
-  echo "  Then run commands as: pwsh ./scripts/init-project.ps1 -OrganizationName \"...\" -TargetPath \"...\""
-fi
-
 echo -e "\n${GREEN}Setup complete.${NC}"
-if [[ "$DRY_RUN" == true ]]; then
-  echo "(dry run — no files were modified)"
-fi
+if [[ "$DRY_RUN" == true ]]; then echo "(dry run — no files were modified)"; fi

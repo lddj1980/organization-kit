@@ -1,11 +1,11 @@
-schema_version: "1.0"
+schema_version: "1.1"
 integration:
   id: openclaude
   name: "OpenClaude"
-  version: "0.1.0"
-  description: "Command files for OpenClaude CLI. Commands are installed as /org.* slash commands using the Claude Code-compatible convention."
+  version: "0.2.0"
+  description: "Native OpenClaude skills for Organization Kit. Canonical commands are adapted into .openclaude/skills/<command>/SKILL.md."
 
-source: "spec-kit conventions + Claude Code compatibility reference (https://code.claude.com/docs/en/skills.md) — OpenClaude follows the Claude Code command discovery conventions."
+source: "OpenClaude native skill loader (Gitlawb/openclaude): project skills in .openclaude/skills/, user skills in ~/.openclaude/skills/. Legacy .claude/commands remains supported by OpenClaude but is deprecated in its command loader."
 
 requires:
   tools:
@@ -13,9 +13,12 @@ requires:
       required: true
 
 provides:
-  commands_dir: ".claude/commands"
-  global_dir: "~/.claude/commands"
-  file_pattern: "org.{name}.md"
+  skills_dir: ".openclaude/skills"
+  global_dir: "~/.openclaude/skills"
+  config_env: "OPENCLAUDE_CONFIG_DIR"
+  file_pattern: "org.{name}/SKILL.md"
+  invocation_pattern: "/org.{name}"
+  command_source: "commands/org.{name}.md"
   commands:
     - name: "org.init"
       file: "commands/org.init.md"
@@ -48,12 +51,31 @@ provides:
     - name: "org.normalize"
       file: "commands/org.normalize.md"
 
+adapter:
+  strategy: "semantic-frontmatter"
+  preserves:
+    - "canonical markdown body"
+    - "$ARGUMENTS placeholders"
+    - "public /org.* command names"
+  emits_frontmatter:
+    - "name"
+    - "description"
+    - "argument-hint"
+    - "user-invocable"
+  drops_source_frontmatter:
+    - "handoffs"
+  defaults:
+    user_invocable: true
+    argument_hint: "[arguments]"
+
 notes: |
-  OpenClaude follows the Claude Code command discovery conventions:
-  - Project-level commands live in .claude/commands/ (already in use in this repo).
-  - User-level (GLOBAL) commands live in ~/.claude/commands/ and apply across all
-    projects on the machine. On Windows this is %USERPROFILE%\.claude\commands\.
-  - Commands appear as /org.{name} in the OpenClaude interface.
-  - $ARGUMENTS is populated with the text typed after the command name.
-  - OpenClaude keeps its own runtime data under ~/.openclaude/, but command discovery
-    uses the Claude Code paths above (CLAUDE_CONFIG_DIR relocates the whole ~/.claude tree).
+  OpenClaude has a native skill registry distinct from Claude Code.
+  - Project-level skills live in .openclaude/skills/<skill>/SKILL.md.
+  - User-level (GLOBAL) skills live in ~/.openclaude/skills/<skill>/SKILL.md.
+  - OPENCLAUDE_CONFIG_DIR overrides the user config root.
+  - The directory name is intentionally "org.init", "org.spec", etc. so the
+    public slash-command API remains /org.init, /org.spec, and so on.
+  - Organization Kit keeps commands/ as its single canonical source. The
+    OpenClaude installer converts each command into a native SKILL.md at install time.
+  - OpenClaude still understands legacy .claude/commands entries, but its source
+    labels that loader commands_DEPRECATED; this adapter intentionally avoids it.
