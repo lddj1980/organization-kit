@@ -54,7 +54,7 @@ $setupSh = Get-Content (Join-Path $IntegrationKitRoot "setup.sh") -Raw
 $installPs1 = Get-Content (Join-Path $IntegrationKitRoot "scripts\install.ps1") -Raw
 Assert-True ($setupPs1 -match "'openclaude'") "setup.ps1 routes OpenClaude"
 Assert-True ($setupSh -match "(?m)^\s*openclaude\)") "setup.sh routes OpenClaude"
-Assert-True ($installPs1 -match "\$Adapter -eq 'openclaude'") "scripts/install.ps1 routes OpenClaude"
+Assert-True ($installPs1.Contains("if (`$Adapter -eq 'openclaude')")) "scripts/install.ps1 routes OpenClaude"
 Assert-True (-not ($setupPs1.Contains(".claude\commands") -and $setupPs1.Contains("OpenClaude follows"))) "setup.ps1 no longer documents legacy OpenClaude commands"
 
 $cmdSrc = Join-Path $IntegrationKitRoot "commands"
