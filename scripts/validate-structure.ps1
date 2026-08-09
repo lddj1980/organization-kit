@@ -1,4 +1,5 @@
-﻿param(
+﻿#!/usr/bin/env pwsh
+param(
     [string]$ProjectPath
 )
 
@@ -56,11 +57,11 @@ foreach ($dir in $requiredDirs) {
 # Check memory files
 $memoryFiles = @("decisions.md", "learnings.md", "history.md")
 foreach ($file in $memoryFiles) {
-    $path = Join-Path $ProjectPath "memory\$file"
+    $path = Join-Path $ProjectPath "memory/$file"
     if (Test-Path $path) {
-        Write-Ok "memory\$file"
+        Write-Ok "memory/$file"
     } else {
-        Write-Warn "memory\$file (missing)"
+        Write-Warn "memory/$file (missing)"
         $warnings++
     }
 }
@@ -68,11 +69,11 @@ foreach ($file in $memoryFiles) {
 # Check state files
 $stateFiles = @("status.json", "health.json", "capabilities.json", "capabilities.md")
 foreach ($file in $stateFiles) {
-    $path = Join-Path $ProjectPath "state\$file"
+    $path = Join-Path $ProjectPath "state/$file"
     if (Test-Path $path) {
-        Write-Ok "state\$file"
+        Write-Ok "state/$file"
     } else {
-        Write-Warn "state\$file (missing)"
+        Write-Warn "state/$file (missing)"
         $warnings++
     }
 }

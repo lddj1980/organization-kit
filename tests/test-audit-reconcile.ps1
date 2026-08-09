@@ -23,7 +23,7 @@ function Assert-True {
     }
 }
 
-$tmpBase = Join-Path $env:TEMP "org-kit-test-audit-$(Get-Random)"
+$tmpBase = Join-Path ([System.IO.Path]::GetTempPath()) "org-kit-test-audit-$(Get-Random)"
 $projectDir = Join-Path $tmpBase "luna-waves"
 
 try {

@@ -7,7 +7,7 @@ param([string]$FrameworkRoot = (Split-Path $PSScriptRoot -Parent))
 
 $failed  = 0
 $passed  = 0
-$tmpBase = Join-Path $env:TEMP "org-kit-luna-$([System.Guid]::NewGuid().ToString('N').Substring(0,8))"
+$tmpBase = Join-Path ([System.IO.Path]::GetTempPath()) "org-kit-luna-$([System.Guid]::NewGuid().ToString('N').Substring(0,8))"
 
 function Assert-True {
     param([bool]$Condition, [string]$Message)

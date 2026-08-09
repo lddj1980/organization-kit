@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 <#
 .SYNOPSIS
     Audits an Organization Kit project for consistency.
@@ -52,7 +53,7 @@ function Add-Issue {
 # ---------------------------------------------------------------------------
 # 1. Load organization.json
 # ---------------------------------------------------------------------------
-$orgJsonPath = Join-Path $ProjectPath "state\organization.json"
+$orgJsonPath = Join-Path $ProjectPath "state/organization.json"
 $orgJson = $null
 if (Test-Path $orgJsonPath) {
     try {
@@ -137,7 +138,7 @@ foreach ($wp in $acceptedWps) {
     if ($artifactBlock -and $artifactBlock.artifact_id) {
         $artifactId = $artifactBlock.artifact_id
         $artifactType = if ($artifactBlock.artifact_type) { $artifactBlock.artifact_type } else { 'living' }
-        $artifactYaml = Join-Path $ProjectPath "artifacts\$artifactId\artifact.yaml"
+        $artifactYaml = Join-Path $ProjectPath "artifacts/$artifactId/artifact.yaml"
         if (-not (Test-Path $artifactYaml)) {
             Add-Issue -Severity "error" -Category "missing_artifact" -Message "Work Package '$wp' targets artifact '$artifactId' but artifact.yaml does not exist" -Detail @{ work_package = $wp; artifact_id = $artifactId }
         } else {
@@ -181,9 +182,9 @@ $contractDirs = $contractDirs | Select-Object -Unique
 
 foreach ($kit in $contractDirs) {
     $checks++
-    $contractPath = Join-Path $contractsDir "$kit\contract.yaml"
+    $contractPath = Join-Path $contractsDir "$kit/contract.yaml"
     if (-not (Test-Path $contractPath)) {
-        $contractPath = Join-Path $frameworkContractsDir "$kit\contract.yaml"
+        $contractPath = Join-Path $frameworkContractsDir "$kit/contract.yaml"
     }
     if (-not (Test-Path $contractPath)) {
         Add-Issue -Severity "error" -Category "invalid_contract" -Message "Contract file missing for kit '$kit'" -Detail $kit

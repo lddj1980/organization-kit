@@ -1,4 +1,5 @@
-﻿param(
+﻿#!/usr/bin/env pwsh
+param(
     [string]$OrganizationName,
     [string]$TargetPath,
     [switch]$Force
@@ -30,8 +31,8 @@ if ((Test-Path $projectDir) -and -not $Force) {
 
 # Create directory structure
 $dirs = @(
-    "knowledge\brand",
-    "knowledge\audience",
+    "knowledge/brand",
+    "knowledge/audience",
     "memory",
     "state",
     "specifications",
@@ -88,12 +89,12 @@ $constitutionTemplate | Set-Content (Join-Path $projectDir "constitution.md") -E
 @"
 # Decisions Log - $OrganizationName
 *Created: $(Get-Date -Format 'yyyy-MM-dd') | Constitution: v0.1*
-"@ | Set-Content (Join-Path $projectDir "memory\decisions.md") -Encoding utf8
+"@ | Set-Content (Join-Path $projectDir "memory/decisions.md") -Encoding utf8
 
 @"
 # Learnings Log - $OrganizationName
 *Created: $(Get-Date -Format 'yyyy-MM-dd') | Constitution: v0.1*
-"@ | Set-Content (Join-Path $projectDir "memory\learnings.md") -Encoding utf8
+"@ | Set-Content (Join-Path $projectDir "memory/learnings.md") -Encoding utf8
 
 @"
 # Capabilities - $OrganizationName
@@ -101,7 +102,7 @@ $constitutionTemplate | Set-Content (Join-Path $projectDir "constitution.md") -E
 
 | Capability | Maturity | Kit |
 |------------|----------|-----|
-"@ | Set-Content (Join-Path $projectDir "state\capabilities.md") -Encoding utf8
+"@ | Set-Content (Join-Path $projectDir "state/capabilities.md") -Encoding utf8
 
 @"
 # Health - $OrganizationName
@@ -110,12 +111,12 @@ $constitutionTemplate | Set-Content (Join-Path $projectDir "constitution.md") -E
 State: bootstrapping
 Constitution: v0.1 (draft)
 Active work packages: 0
-"@ | Set-Content (Join-Path $projectDir "state\health.md") -Encoding utf8
+"@ | Set-Content (Join-Path $projectDir "state/health.md") -Encoding utf8
 
 @"
 # History - $OrganizationName
 *Created: $(Get-Date -Format 'yyyy-MM-dd')*
-"@ | Set-Content (Join-Path $projectDir "memory\history.md") -Encoding utf8
+"@ | Set-Content (Join-Path $projectDir "memory/history.md") -Encoding utf8
 
 @"
 {
@@ -126,7 +127,7 @@ Active work packages: 0
   "artifacts_count": 0,
   "work_packages_count": 0
 }
-"@ | Set-Content (Join-Path $projectDir "state\status.json") -Encoding utf8
+"@ | Set-Content (Join-Path $projectDir "state/status.json") -Encoding utf8
 
 @"
 {
@@ -137,13 +138,13 @@ Active work packages: 0
   "capabilities": "undefined",
   "memory": "empty"
 }
-"@ | Set-Content (Join-Path $projectDir "state\health.json") -Encoding utf8
+"@ | Set-Content (Join-Path $projectDir "state/health.json") -Encoding utf8
 
 @"
 {
   "capabilities": {}
 }
-"@ | Set-Content (Join-Path $projectDir "state\capabilities.json") -Encoding utf8
+"@ | Set-Content (Join-Path $projectDir "state/capabilities.json") -Encoding utf8
 
 @"
 {
@@ -170,7 +171,7 @@ Active work packages: 0
   "recent_decisions": [],
   "updated_at": "$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ssZ')"
 }
-"@ | Set-Content (Join-Path $projectDir "state\organization.json") -Encoding utf8
+"@ | Set-Content (Join-Path $projectDir "state/organization.json") -Encoding utf8
 
 Write-Ok "Project initialized: $projectDir"
 Write-Ok "Constitution: v0.1 (draft)"

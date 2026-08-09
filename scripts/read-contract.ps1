@@ -1,4 +1,5 @@
-﻿<#
+﻿#!/usr/bin/env pwsh
+<#
 .SYNOPSIS
     Universal Contract Reader - reads any Capability Kit contract and returns structured data.
 .DESCRIPTION

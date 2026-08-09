@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 <#
 .SYNOPSIS
     Accepts a reviewed Work Package and integrates its artifacts into the organization.
@@ -49,7 +50,7 @@ function Copy-ArtifactItem {
     if ($IsFileMapping) {
         Copy-Item -Path $Source -Destination $Destination -Force
     } else {
-        Copy-Item -Recurse -Path "$Source\*" -Destination $Destination -Force
+        Copy-Item -Recurse -Path "$Source/*" -Destination $Destination -Force
     }
 }
 
@@ -104,7 +105,7 @@ Write-Host ""
 # ---------------------------------------------------------------------------
 # 1. Locate work-package and read status
 # ---------------------------------------------------------------------------
-$wpPath    = Join-Path $ProjectPath "work-packages\$WorkPackage"
+$wpPath    = Join-Path $ProjectPath "work-packages/$WorkPackage"
 $statusFile = Join-Path $wpPath "status.json"
 
 if (-not (Test-Path $wpPath)) {
@@ -202,7 +203,7 @@ if ($artifact -or $manifestArtifact) {
     if (-not $artifactDestination) { $artifactDestination = "artifacts/$artifactId/" }
     if (-not $targetVersion) { $targetVersion = 'v0.1' }
 
-    $artifactRoot = Join-Path $ProjectPath "artifacts\$artifactId"
+    $artifactRoot = Join-Path $ProjectPath "artifacts/$artifactId"
     $canonicalCurrentPath = $artifactDestination
     $deliveryMode = if ($manifestArtifact -and $manifestArtifact.delivery_mode) { $manifestArtifact.delivery_mode } else { 'update' }
     $isOverlay = ($artifactType -eq 'living' -and $artifactAction -eq 'update' -and $deliveryMode -eq 'overlay')
@@ -211,13 +212,13 @@ if ($artifact -or $manifestArtifact) {
     if ($artifactType -eq 'immutable') {
         $artifactDest = Join-Path $artifactRoot $WorkPackage
         New-Item -ItemType Directory -Path $artifactDest -Force | Out-Null
-        Copy-Item -Recurse -Path "$responseDir\*" -Destination $artifactDest -Force
+        Copy-Item -Recurse -Path "$responseDir/*" -Destination $artifactDest -Force
         Write-Ok "Immutable artifact copied to: $artifactDest"
         $destinationsUsed += $artifactDest
     } else {
         # living artifact
         $currentDir = Join-Path $artifactRoot "current"
-        $versionDir = Join-Path $artifactRoot "versions\$targetVersion"
+        $versionDir = Join-Path $artifactRoot "versions/$targetVersion"
         New-Item -ItemType Directory -Path $currentDir -Force | Out-Null
         New-Item -ItemType Directory -Path $versionDir -Force | Out-Null
 
@@ -229,8 +230,8 @@ if ($artifact -or $manifestArtifact) {
             # Evolution: kit applied change to the living state; response/ contains evidence only
             $evidenceDir = Join-Path $versionDir "evidence"
             New-Item -ItemType Directory -Path $evidenceDir -Force | Out-Null
-            if (Test-Path "$responseDir\*") {
-                Copy-Item -Recurse -Path "$responseDir\*" -Destination $evidenceDir -Force
+            if (Test-Path "$responseDir/*") {
+                Copy-Item -Recurse -Path "$responseDir/*" -Destination $evidenceDir -Force
             }
             $destinationsUsed += $evidenceDir
             Write-Ok "Living artifact evolution recorded at: $artifactRoot"
@@ -272,7 +273,7 @@ if ($artifact -or $manifestArtifact) {
             foreach ($item in $responseItems) {
                 $dest = Join-Path $currentDir $item.Name
                 if ($item.PSIsContainer) {
-                    Copy-Item -Recurse -Path "$($item.FullName)\*" -Destination $dest -Force
+                    Copy-Item -Recurse -Path "$($item.FullName)/*" -Destination $dest -Force
                 } else {
                     Copy-Item -Path $item.FullName -Destination $dest -Force
                 }
@@ -290,7 +291,7 @@ if ($artifact -or $manifestArtifact) {
                 foreach ($item in $responseItems) {
                     $dest = Join-Path $snapshotDir $item.Name
                     if ($item.PSIsContainer) {
-                        Copy-Item -Recurse -Path "$($item.FullName)\*" -Destination $dest -Force
+                        Copy-Item -Recurse -Path "$($item.FullName)/*" -Destination $dest -Force
                     } else {
                         Copy-Item -Path $item.FullName -Destination $dest -Force
                     }
@@ -300,7 +301,7 @@ if ($artifact -or $manifestArtifact) {
             }
         } else {
             # Create or full_replacement: promote delivery to current/
-            Copy-Item -Recurse -Path "$responseDir\*" -Destination $currentDir -Force
+            Copy-Item -Recurse -Path "$responseDir/*" -Destination $currentDir -Force
 
             if ($versionStorage -eq 'reference') {
                 # Resolve repository path
@@ -314,7 +315,7 @@ if ($artifact -or $manifestArtifact) {
                 # snapshot storage: keep a full copy in versions/<target>/snapshot/
                 $snapshotDir = Join-Path $versionDir "snapshot"
                 New-Item -ItemType Directory -Path $snapshotDir -Force | Out-Null
-                Copy-Item -Recurse -Path "$responseDir\*" -Destination $snapshotDir -Force
+                Copy-Item -Recurse -Path "$responseDir/*" -Destination $snapshotDir -Force
 
                 $destinationsUsed += $snapshotDir
                 Write-Ok "Living artifact snapshot copied to: $currentDir"
@@ -442,7 +443,7 @@ Last updated: $(Get-Date -Format 'yyyy-MM-ddTHH:mm:ssZ')
         Write-Info "Product '$productId' not found - treating this delivery as initial_build."
     }
 
-    $fallbackDest = Join-Path $ProjectPath "artifacts\$kitSlug\$WorkPackage"
+    $fallbackDest = Join-Path $ProjectPath "artifacts/$kitSlug/$WorkPackage"
     if ($contract.ArtifactDestination -and $contract.ArtifactDestination.Default) {
         $artifactDest = Resolve-ArtifactDestination -Template $contract.ArtifactDestination.Default -Kit $kitSlug -WorkPackageId $WorkPackage -Product $productId
         $artifactDest = Join-Path $ProjectPath $artifactDest
@@ -464,7 +465,7 @@ Last updated: $(Get-Date -Format 'yyyy-MM-ddTHH:mm:ssZ')
 
             if (Test-Path $sourceItem -PathType Container) {
                 if (-not (Test-Path $mappedDest)) { New-Item -ItemType Directory -Path $mappedDest -Force | Out-Null }
-                Copy-Item -Recurse -Path "$sourceItem\*" -Destination $mappedDest -Force
+                Copy-Item -Recurse -Path "$sourceItem/*" -Destination $mappedDest -Force
                 $mapped += $mappedDest
                 if ($destinationsUsed -notcontains $mappedDest) { $destinationsUsed += $mappedDest }
             } else {
@@ -476,7 +477,7 @@ Last updated: $(Get-Date -Format 'yyyy-MM-ddTHH:mm:ssZ')
             }
         } else {
             if (Test-Path $sourceItem -PathType Container) {
-                Copy-Item -Recurse -Path "$sourceItem\*" -Destination (Join-Path $artifactDest $item) -Force
+                Copy-Item -Recurse -Path "$sourceItem/*" -Destination (Join-Path $artifactDest $item) -Force
             } else {
                 Copy-Item -Path $sourceItem -Destination (Join-Path $artifactDest $item) -Force
             }
@@ -585,12 +586,12 @@ if (Test-Path $manifestFile) {
 # 8. Update changelog
 # ---------------------------------------------------------------------------
 $logLine = "`n| $(Get-Date -Format 'yyyy-MM-dd') | accepted | framework | Artifacts accepted to $artifactDest |"
-Add-Content -Path (Join-Path $wpPath "logs\changelog.md") -Value $logLine -Encoding utf8
+Add-Content -Path (Join-Path $wpPath "logs/changelog.md") -Value $logLine -Encoding utf8
 
 # ---------------------------------------------------------------------------
 # 9. Update memory/history.md
 # ---------------------------------------------------------------------------
-$historyFile = Join-Path $ProjectPath "memory\history.md"
+$historyFile = Join-Path $ProjectPath "memory/history.md"
 if (Test-Path $historyFile) {
     $histEntry = @"
 
@@ -608,7 +609,7 @@ if (Test-Path $historyFile) {
 # ---------------------------------------------------------------------------
 # 10. Update memory/decisions.md
 # ---------------------------------------------------------------------------
-$decisionsFile = Join-Path $ProjectPath "memory\decisions.md"
+$decisionsFile = Join-Path $ProjectPath "memory/decisions.md"
 if (Test-Path $decisionsFile) {
     $kitCap   = if ($contract.Metadata.capabilities) { $contract.Metadata.capabilities } else { $contract.Kit }
     $decision = @"
@@ -625,7 +626,7 @@ Capability advanced: **$kitCap**.
 # ---------------------------------------------------------------------------
 # 11. Update state/status.json
 # ---------------------------------------------------------------------------
-$stateStatusFile = Join-Path $ProjectPath "state\status.json"
+$stateStatusFile = Join-Path $ProjectPath "state/status.json"
 if (Test-Path $stateStatusFile) {
     try {
         $stateStatus = Get-Content $stateStatusFile -Raw | ConvertFrom-Json
@@ -643,7 +644,7 @@ if (Test-Path $stateStatusFile) {
 # ---------------------------------------------------------------------------
 # 12. Update state/capabilities.json
 # ---------------------------------------------------------------------------
-$capabilitiesFile = Join-Path $ProjectPath "state\capabilities.json"
+$capabilitiesFile = Join-Path $ProjectPath "state/capabilities.json"
 if (Test-Path $capabilitiesFile) {
     try {
         $capabilities = Get-Content $capabilitiesFile -Raw | ConvertFrom-Json

@@ -122,7 +122,13 @@ Implementação da lógica de um comando. Contém prompt, workflow, schemas e ex
 ## Rodando os testes
 
 ```powershell
+# Windows
 Get-ChildItem tests/*.ps1 | ForEach-Object { powershell -ExecutionPolicy Bypass -File $_.FullName }
+```
+
+```bash
+# Linux/macOS (requer PowerShell 7+ / pwsh)
+pwsh -Command 'Get-ChildItem tests/*.ps1 | ForEach-Object { pwsh -File $_.FullName }'
 ```
 
 Testes mínimos obrigatórios:
@@ -236,6 +242,7 @@ O framework suporta múltiplas ferramentas via adapters em `adapters/`:
 - Claude Code
 - Kimi
 - OpenCode
+- OpenClaude
 - Cursor
 - Gemini
 - Generic

@@ -32,11 +32,14 @@ setup.sh / setup.ps1          ← copies files to the right place
 | Zed | `zed` | `.agents/skills/` | `/org.init` | ✅ |
 | Kimi Code | `kimi` | `.kimi-code/skills/` | `/org.init` | ✅ |
 | opencode | `opencode` | `.opencode/commands/` | `/org.init` | ✅ |
+| OpenClaude | `openclaude` | `.claude/commands/` (or `~/.claude/commands/` with `-Global`) | `/org.init` | ✅ |
 | Hermes | `hermes` | `~/.hermes/skills/` ⚠️ GLOBAL | `/org.init` | ✅ |
 | Antigravity (agy) | `agy` | `.agy/skills/` | `/org.init` | ⚠️ best-effort |
 | Generic | `generic` | `.ai/commands/` | see agent docs | ✅ |
 
 **Hermes** installs globally (`~/.hermes/skills/`) — commands appear in all Hermes sessions, not just this project.
+
+**OpenClaude** follows the Claude Code command discovery conventions. By default commands install to `.claude/commands/`; pass `--global` (`setup.sh`) or `-Global` (`setup.ps1`) to also install to `~/.claude/commands/` so they appear in all OpenClaude sessions.
 
 **agy** path is inferred from convention since documentation was unreachable. If it doesn't work, check `integrations/agy/integration.yml` for the correction path.
 
@@ -67,6 +70,7 @@ echo "luna-waves" > .org-kit/active
 ## Adding a new integration
 
 1. Create `integrations/{key}/integration.yml`
-2. Add frontmatter adapter if needed (some agents need different YAML fields)
-3. Add the case to `setup.sh` and `setup.ps1`
-4. Test with `./setup.sh --integration {key} --dry-run`
+2. Add the integration to `catalog.yml`
+3. Add frontmatter adapter if needed (some agents need different YAML fields)
+4. Add the case to `setup.sh` and `setup.ps1`
+5. Test with `./setup.sh --integration {key} --dry-run`

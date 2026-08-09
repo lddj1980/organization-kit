@@ -161,8 +161,8 @@ function Get-OrgKitContract {
     .PARAMETER WorkPackagePath
         Work-package path - reads the embedded contract.yaml (used in review/accept).
     .EXAMPLE
-        $c = Get-OrgKitContract -Kit "website-kit" -ProjectPath "C:\projects\luna-waves"
-        $c = Get-OrgKitContract -WorkPackagePath "C:\projects\luna-waves\work-packages\0001-build-website"
+        $c = Get-OrgKitContract -Kit "website-kit" -ProjectPath "/path/to/luna-waves"
+        $c = Get-OrgKitContract -WorkPackagePath "/path/to/luna-waves/work-packages/0001-build-website"
     #>
     param(
         [string]$Kit,
@@ -180,8 +180,8 @@ function Get-OrgKitContract {
         }
     } elseif ($Kit) {
         $candidates = @()
-        if ($ProjectPath) { $candidates += Join-Path $ProjectPath "contracts\$Kit\contract.yaml" }
-        $candidates += Join-Path $FrameworkPath "contracts\$Kit\contract.yaml"
+        if ($ProjectPath) { $candidates += Join-Path $ProjectPath "contracts/$Kit/contract.yaml" }
+        $candidates += Join-Path $FrameworkPath "contracts/$Kit/contract.yaml"
         $contractPath = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
         if (-not $contractPath) {
             throw "Contract not found for kit '$Kit'. Searched: $($candidates -join ', ')"
@@ -248,11 +248,11 @@ function Find-OrgKitInputFile {
     # Canonical location table for well-known inputs
     $knownLocations = @{
         'constitution'     = @("constitution.md")
-        'brand'            = @("knowledge\brand\brand.md", "knowledge\brand\overview.md", "knowledge\brand.md")
-        'audience'         = @("knowledge\audience\audience.md", "knowledge\audience\overview.md", "knowledge\audience.md")
-        'seo-requirements' = @("specifications\seo-requirements.md", "knowledge\seo\requirements.md")
-        'content-map'      = @("knowledge\content\content-map.md", "specifications\content-map.md")
-        'design-system'    = @("knowledge\brand\design-system.md", "knowledge\visual\design-system.md")
+        'brand'            = @("knowledge/brand/brand.md", "knowledge/brand/overview.md", "knowledge/brand.md")
+        'audience'         = @("knowledge/audience/audience.md", "knowledge/audience/overview.md", "knowledge/audience.md")
+        'seo-requirements' = @("specifications/seo-requirements.md", "knowledge/seo/requirements.md")
+        'content-map'      = @("knowledge/content/content-map.md", "specifications/content-map.md")
+        'design-system'    = @("knowledge/brand/design-system.md", "knowledge/visual/design-system.md")
     }
 
     $candidates = @(Join-Path $ProjectPath $InputName)
@@ -300,8 +300,8 @@ function Get-OrgKitCapabilityRegistry {
     )
 
     $candidates = @()
-    if ($ProjectPath) { $candidates += Join-Path $ProjectPath "registry\capabilities.yaml" }
-    $candidates += Join-Path $FrameworkPath "registry\capabilities.yaml"
+    if ($ProjectPath) { $candidates += Join-Path $ProjectPath "registry/capabilities.yaml" }
+    $candidates += Join-Path $FrameworkPath "registry/capabilities.yaml"
 
     $registryPath = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
     if (-not $registryPath) {
@@ -470,8 +470,8 @@ function Update-OrgKitOrganizationJson {
         }
     }
 
-    $state.updated_at = (Get-Date -Format 'yyyy-MM-ddTHH:mm:ssZ')
-    $state | ConvertTo-Json -Depth 10 | Set-Content (Join-Path $ProjectPath "state\organization.json") -Encoding utf8
+    $state | Add-Member -MemberType NoteProperty -Name 'updated_at' -Value (Get-Date -Format 'yyyy-MM-ddTHH:mm:ssZ') -Force
+    $state | ConvertTo-Json -Depth 10 | Set-Content (Join-Path $ProjectPath "state/organization.json") -Encoding utf8
 }
 
 # ---------------------------------------------------------------------------
@@ -590,7 +590,7 @@ function Get-OrgKitArtifactManifest {
         [Parameter(Mandatory)] [string]$ArtifactId
     )
 
-    $artifactFile = Join-Path $ProjectPath "artifacts\$ArtifactId\artifact.yaml"
+    $artifactFile = Join-Path $ProjectPath "artifacts/$ArtifactId/artifact.yaml"
     if (-not (Test-Path $artifactFile)) { return $null }
 
     $raw = Get-Content $artifactFile -Raw
@@ -627,7 +627,7 @@ function Update-OrgKitArtifactManifest {
         [string]$LastUpdated = ''
     )
 
-    $artifactDir = Join-Path $ProjectPath "artifacts\$ArtifactId"
+    $artifactDir = Join-Path $ProjectPath "artifacts/$ArtifactId"
     if (-not (Test-Path $artifactDir)) {
         New-Item -ItemType Directory -Path $artifactDir -Force | Out-Null
     }
@@ -673,7 +673,7 @@ function Update-OrgKitArtifactHistory {
         [string]$Summary = ''
     )
 
-    $artifactDir = Join-Path $ProjectPath "artifacts\$ArtifactId"
+    $artifactDir = Join-Path $ProjectPath "artifacts/$ArtifactId"
     $historyFile = Join-Path $artifactDir 'history.md'
     if (-not (Test-Path $artifactDir)) {
         New-Item -ItemType Directory -Path $artifactDir -Force | Out-Null
@@ -736,7 +736,7 @@ function Update-OrgKitArtifactsJson {
 
     $state | Add-Member -MemberType NoteProperty -Name 'artifacts' -Value $artifacts -Force
     $state.updated_at = (Get-Date -Format 'yyyy-MM-ddTHH:mm:ssZ')
-    $state | ConvertTo-Json -Depth 10 | Set-Content (Join-Path $ProjectPath 'state\artifacts.json') -Encoding utf8
+    $state | ConvertTo-Json -Depth 10 | Set-Content (Join-Path $ProjectPath 'state/artifacts.json') -Encoding utf8
 }
 
 function Get-NextArtifactVersion {
@@ -837,7 +837,7 @@ function Get-OrgKitProductManifest {
         [string]$ProductId
     )
 
-    $productDir  = Join-Path $ProjectPath "products\$ProductId"
+    $productDir  = Join-Path $ProjectPath "products/$ProductId"
     $productFile = Join-Path $productDir "product.yaml"
 
     if (Test-Path $productFile) {
@@ -875,7 +875,7 @@ function Update-OrgKitProductManifest {
         [string[]]$UpdatedBy = @()
     )
 
-    $productDir  = Join-Path $ProjectPath "products\$ProductId"
+    $productDir  = Join-Path $ProjectPath "products/$ProductId"
     $productFile = Join-Path $productDir "product.yaml"
 
     if (-not (Test-Path $productDir)) {
@@ -918,7 +918,7 @@ function Add-OrgKitProductHistoryEntry {
         [string]$Notes = ''
     )
 
-    $historyDir = Join-Path $ProjectPath "products\$ProductId\history"
+    $historyDir = Join-Path $ProjectPath "products/$ProductId/history"
     if (-not (Test-Path $historyDir)) {
         New-Item -ItemType Directory -Path $historyDir -Force | Out-Null
     }

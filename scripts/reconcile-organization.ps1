@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 <#
 .SYNOPSIS
     Reconciles an Organization Kit project by fixing detected inconsistencies.
@@ -32,7 +33,7 @@ function Write-Info ($msg) { Write-Host "  [INFO] $msg" -ForegroundColor Cyan }
 
 function Get-LatestVersionFromHistory {
     param([string]$ProjectPath, [string]$ProductId)
-    $versionsFile = Join-Path (Join-Path (Join-Path $ProjectPath "products") $ProductId) "history\versions.md"
+    $versionsFile = Join-Path (Join-Path (Join-Path $ProjectPath "products") $ProductId) "history/versions.md"
     if (-not (Test-Path $versionsFile)) { return $null }
     $content = Get-Content $versionsFile -Raw
     $matches = [regex]::Matches($content, '^##\s+(\d+\.\d+\.\d+)\s*$', [System.Text.RegularExpressions.RegexOptions]::Multiline)
@@ -59,7 +60,7 @@ $audit = $null
 if ($AuditReport -and (Test-Path $AuditReport)) {
     $audit = Get-Content $AuditReport -Raw | ConvertFrom-Json
 } else {
-    $auditPath = Join-Path $ProjectPath "outputs\audit-report.json"
+    $auditPath = Join-Path $ProjectPath "outputs/audit-report.json"
     if (Test-Path $auditPath) {
         $audit = Get-Content $auditPath -Raw | ConvertFrom-Json
     } else {
@@ -256,8 +257,8 @@ if (Test-Path $wpsDir) {
             }
 
             if ($artifactType -eq 'living') {
-                $currentDir = Join-Path $ProjectPath "artifacts\$artifactId\current"
-                $currentRef = Join-Path $ProjectPath "artifacts\$artifactId\current-reference.md"
+                $currentDir = Join-Path $ProjectPath "artifacts/$artifactId/current"
+                $currentRef = Join-Path $ProjectPath "artifacts/$artifactId/current-reference.md"
                 if (-not (Test-Path $currentDir)) {
                     $plan += [PSCustomObject]@{
                         action       = 'manual_review_required'
@@ -374,7 +375,7 @@ foreach ($action in $plan) {
         'create_product_from_work_package' {
             $productId = $action.product
             $wp = $action.work_package
-            $wpPath = Join-Path $ProjectPath "work-packages\$wp"
+            $wpPath = Join-Path $ProjectPath "work-packages/$wp"
             $contractPath = Join-Path $wpPath "contract.yaml"
 
             $capability = $productId
@@ -412,7 +413,7 @@ foreach ($action in $plan) {
 
         'register_product_state' {
             $productId = $action.product
-            $productDir = Join-Path $ProjectPath "products\$productId"
+            $productDir = Join-Path $ProjectPath "products/$productId"
             $productFile = Join-Path $productDir "product.yaml"
 
             $version = '0.0.0'

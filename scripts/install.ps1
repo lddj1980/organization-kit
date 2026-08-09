@@ -1,4 +1,5 @@
-﻿# Organization Kit - Installation Script
+﻿#!/usr/bin/env pwsh
+# Organization Kit - Installation Script
 # This script installs the framework for a specific adapter or environment
 
 param(
@@ -63,7 +64,7 @@ if ($SkipCommands) {
 }
 
 if (-not $SkipCommands) {
-$AdapterCommandsDir = Join-Path $RootDir "adapters\$Adapter\commands"
+$AdapterCommandsDir = Join-Path $RootDir "adapters/$Adapter/commands"
 
 if (Test-Path $AdapterCommandsDir) {
     Write-Info "Using adapter-specific commands from: $AdapterCommandsDir"
@@ -84,15 +85,15 @@ foreach ($cmd in $Commands) {
     
     if ($TargetPath) {
         if ($Adapter -eq "claude") {
-            $dstFile = Join-Path $TargetPath ".claude\commands\org.$cmd.md"
+            $dstFile = Join-Path $TargetPath ".claude/commands/org.$cmd.md"
         } else {
-            $dstFile = Join-Path $TargetPath "org-commands\org.$cmd.md"
+            $dstFile = Join-Path $TargetPath "org-commands/org.$cmd.md"
         }
     } else {
         if ($Adapter -eq "claude") {
-            $dstFile = ".claude\commands\org.$cmd.md"
+            $dstFile = ".claude/commands/org.$cmd.md"
         } else {
-            $dstFile = "org-commands\org.$cmd.md"
+            $dstFile = "org-commands/org.$cmd.md"
         }
     }
     
@@ -132,16 +133,16 @@ if ($DryRun) {
     if (-not (Test-Path $ScriptsDst)) {
         New-Item -ItemType Directory -Path $ScriptsDst -Force | Out-Null
     }
-    Copy-Item -Path "$ScriptsSrc\*.ps1" -Destination $ScriptsDst -Force
-    Copy-Item -Path "$ScriptsSrc\*.psm1" -Destination $ScriptsDst -Force
+    Copy-Item -Path "$ScriptsSrc/*.ps1" -Destination $ScriptsDst -Force
+    Copy-Item -Path "$ScriptsSrc/*.psm1" -Destination $ScriptsDst -Force
     Write-Ok "Copied framework scripts to: $ScriptsDst"
 }
 
 # Create active organization file
 if ($TargetPath) {
-    $activeFile = Join-Path $TargetPath ".org-kit\active"
+    $activeFile = Join-Path $TargetPath ".org-kit/active"
 } else {
-    $activeFile = ".org-kit\active"
+    $activeFile = ".org-kit/active"
 }
 
 if ($DryRun) {

@@ -74,7 +74,7 @@ Assert-True ($exported -contains 'Update-OrgKitWorkPackageStatus')  "Update-OrgK
 # 9. Install into a temp directory copies commands and scripts
 Write-Host ""
 Write-Host "  Step 9: install into temp directory..." -ForegroundColor Cyan
-$tmpInstall = Join-Path $env:TEMP "org-kit-test-install-$([System.Guid]::NewGuid().ToString('N').Substring(0,8))"
+$tmpInstall = Join-Path ([System.IO.Path]::GetTempPath()) "org-kit-test-install-$([System.Guid]::NewGuid().ToString('N').Substring(0,8))"
 New-Item -ItemType Directory -Path $tmpInstall -Force | Out-Null
 & (Join-Path $IntegrationKitRoot "scripts\install.ps1") -TargetPath $tmpInstall -Adapter "generic" -Force
 Assert-True (Test-Path (Join-Path $tmpInstall "org-commands\org.normalize.md")) "install copies org.normalize.md"

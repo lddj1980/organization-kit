@@ -22,8 +22,10 @@ Um projeto Organization Kit completo, com:
 ## Pré-requisitos
 
 - Windows, Linux ou macOS
-- PowerShell 5.1 ou superior (Windows)
-- Bash (Linux/macOS/Windows com Git Bash)
+- PowerShell 5.1+ (Windows, nativo) ou PowerShell 7+ / `pwsh` (Linux/macOS — [instale aqui](https://learn.microsoft.com/powershell/scripting/install/installing-powershell))
+- Bash (Linux/macOS/Windows com Git Bash) — usado apenas pelo `setup.sh`
+
+> Todos os scripts em `scripts/` (`init-project.ps1`, `create-work-package.ps1`, etc.) rodam em PowerShell nos três sistemas. No Windows use `.\scripts\...\arquivo.ps1`; no Linux/macOS use `pwsh ./scripts/.../arquivo.ps1`.
 
 ---
 
@@ -62,13 +64,19 @@ Isso copia os comandos canônicos de `commands/` para `.claude/commands/` (ou ou
 Crie o projeto Luna Waves:
 
 ```powershell
+# Windows
 .\scripts\init-project.ps1 -OrganizationName "Luna Waves" -TargetPath "C:\projetos"
+```
+
+```bash
+# Linux/macOS
+pwsh ./scripts/init-project.ps1 -OrganizationName "Luna Waves" -TargetPath "/home/user/projetos"
 ```
 
 Isso cria:
 
 ```text
-C:\projetos\luna-waves/
+luna-waves/
 ├── constitution.md
 ├── knowledge/
 │   ├── brand/
@@ -101,7 +109,7 @@ O Work Package `website-kit` exige quatro inputs obrigatórios:
 
 ### 3.1 Constitution
 
-Edite `C:\projetos\luna-waves\constitution.md`:
+Edite `luna-waves/constitution.md`:
 
 ```markdown
 # Constitution — Luna Waves
@@ -134,7 +142,7 @@ Aggressive marketing, clickbait, trend-chasing.
 
 ### 3.2 Brand
 
-Edite `C:\projetos\luna-waves\knowledge\brand\brand.md`:
+Edite `luna-waves/knowledge/brand/brand.md`:
 
 ```markdown
 # Brand — Luna Waves
@@ -146,7 +154,7 @@ Logo concept: minimalist wave form.
 
 ### 3.3 Audience
 
-Edite `C:\projetos\luna-waves\knowledge\audience\audience.md`:
+Edite `luna-waves/knowledge/audience/audience.md`:
 
 ```markdown
 # Audience — Luna Waves
@@ -157,7 +165,7 @@ Platform: Spotify, Bandcamp, Instagram.
 
 ### 3.4 Website specification
 
-Edite `C:\projetos\luna-waves\specifications\website-spec.md`:
+Edite `luna-waves/specifications/website-spec.md`:
 
 ```markdown
 # Website Specification — Luna Waves
@@ -180,10 +188,19 @@ Edite `C:\projetos\luna-waves\specifications\website-spec.md`:
 Agora que os inputs existem, crie o Work Package:
 
 ```powershell
+# Windows
 .\scripts\create-work-package.ps1 `
     -Kit "website-kit" `
     -Name "build-website" `
     -ProjectPath "C:\projetos\luna-waves"
+```
+
+```bash
+# Linux/macOS
+pwsh ./scripts/create-work-package.ps1 \
+    -Kit "website-kit" \
+    -Name "build-website" \
+    -ProjectPath "/home/user/projetos/luna-waves"
 ```
 
 O script:
@@ -210,6 +227,7 @@ Em um fluxo real, um agente/kit leria `request/` e preencheria `response/`. Nest
 Crie os arquivos de entrega:
 
 ```powershell
+# Windows
 $wp = "C:\projetos\luna-waves\work-packages\0001-build-website"
 
 # Página inicial
@@ -247,6 +265,45 @@ Brand voice maintained: calm, minimal. No aggressive CTAs.
 "@ | Set-Content "$wp\response\report.md" -Encoding utf8
 ```
 
+```bash
+# Linux/macOS
+wp="/home/user/projetos/luna-waves/work-packages/0001-build-website"
+
+# Página inicial
+echo '<!DOCTYPE html><html><head><title>Luna Waves</title></head><body><h1>Luna Waves</h1></body></html>' \
+    > "$wp/response/website/index.html"
+
+# Sobre
+echo '<!DOCTYPE html><html><head><title>About</title></head><body><p>Artist story.</p></body></html>' \
+    > "$wp/response/website/about.html"
+
+# Documentação
+printf '# Documentation\nWebsite built with HTML and CSS.\n' \
+    > "$wp/response/documentation/README.md"
+
+# Report
+cat > "$wp/response/report.md" <<'EOF'
+# Implementation Report — Luna Waves Website
+
+## Objective
+Build a minimal website for Luna Waves ambient music project.
+
+## Decisions
+- Used semantic HTML5 for accessibility
+- Mobile-first responsive design
+- No JavaScript dependencies for core pages
+- SEO meta tags on all pages
+
+## Delivered pages
+- index.html — Home
+- about.html — Artist story
+
+## Status
+All required pages delivered. Responsive layout implemented.
+Brand voice maintained: calm, minimal. No aggressive CTAs.
+EOF
+```
+
 ---
 
 ## 6. Revisar a entrega
@@ -254,9 +311,17 @@ Brand voice maintained: calm, minimal. No aggressive CTAs.
 Execute o review:
 
 ```powershell
+# Windows
 .\scripts\review-work-package.ps1 `
     -WorkPackage "0001-build-website" `
     -ProjectPath "C:\projetos\luna-waves"
+```
+
+```bash
+# Linux/macOS
+pwsh ./scripts/review-work-package.ps1 \
+    -WorkPackage "0001-build-website" \
+    -ProjectPath "/home/user/projetos/luna-waves"
 ```
 
 O script:
@@ -284,9 +349,18 @@ Strategic score: 0.5
 Com o status `approved_with_notes`, use `-AllowNotes`:
 
 ```powershell
+# Windows
 .\scripts\accept-work-package.ps1 `
     -WorkPackage "0001-build-website" `
     -ProjectPath "C:\projetos\luna-waves" `
+    -AllowNotes
+```
+
+```bash
+# Linux/macOS
+pwsh ./scripts/accept-work-package.ps1 \
+    -WorkPackage "0001-build-website" \
+    -ProjectPath "/home/user/projetos/luna-waves" \
     -AllowNotes
 ```
 
@@ -301,14 +375,14 @@ Saída esperada:
 
 ```text
 Work Package accepted: 0001-build-website
-Artifacts: C:\projetos\luna-waves\artifacts\website-kit\0001-build-website\
+Artifacts: luna-waves/artifacts/website-kit/0001-build-website/
 ```
 
 ---
 
 ## 8. Verificar o estado consolidado
 
-Abra `C:\projetos\luna-waves\state\organization.json`:
+Abra `luna-waves/state/organization.json`:
 
 ```json
 {
@@ -325,7 +399,7 @@ Abra `C:\projetos\luna-waves\state\organization.json`:
   "artifacts": {
     "0001-build-website": {
       "kit": "website-kit",
-      "path": "C:\\projetos\\luna-waves\\artifacts\\website-kit\\0001-build-website",
+      "path": "luna-waves/artifacts/website-kit/0001-build-website",
       "accepted_at": "2026-06-29T17:42:16Z"
     }
   },
@@ -384,8 +458,15 @@ Use `/org.evolve` para uma análise estratégica completa:
 Exemplos:
 
 ```powershell
+# Windows
 .\scripts\create-work-package.ps1 -Kit "content-kit" -Name "write-about-page" -ProjectPath "C:\projetos\luna-waves"
 .\scripts\create-work-package.ps1 -Kit "visual-kit" -Name "design-logo" -ProjectPath "C:\projetos\luna-waves"
+```
+
+```bash
+# Linux/macOS
+pwsh ./scripts/create-work-package.ps1 -Kit "content-kit" -Name "write-about-page" -ProjectPath "/home/user/projetos/luna-waves"
+pwsh ./scripts/create-work-package.ps1 -Kit "visual-kit" -Name "design-logo" -ProjectPath "/home/user/projetos/luna-waves"
 ```
 
 ---
@@ -405,7 +486,13 @@ Isso acontece quando não há `constitution.md` ou `report.md`. Preencha ambos e
 Use `-AllowNotes`:
 
 ```powershell
+# Windows
 .\scripts\accept-work-package.ps1 -WorkPackage "0001-build-website" -ProjectPath "C:\projetos\luna-waves" -AllowNotes
+```
+
+```bash
+# Linux/macOS
+pwsh ./scripts/accept-work-package.ps1 -WorkPackage "0001-build-website" -ProjectPath "/home/user/projetos/luna-waves" -AllowNotes
 ```
 
 ### Kit não encontrado no registry
@@ -417,7 +504,7 @@ O `create-work-package.ps1` emite um aviso, mas continua. Para registrar um novo
 ## Comandos úteis
 
 ```powershell
-# Rodar todos os testes
+# Windows — rodar todos os testes
 Get-ChildItem tests/*.ps1 | ForEach-Object { powershell -ExecutionPolicy Bypass -File $_.FullName }
 
 # Validar estrutura do projeto
@@ -425,6 +512,17 @@ Get-ChildItem tests/*.ps1 | ForEach-Object { powershell -ExecutionPolicy Bypass 
 
 # Ler um contrato
 .\scripts\read-contract.ps1 -KitName "website-kit" -ContractsDir "contracts"
+```
+
+```bash
+# Linux/macOS — rodar todos os testes (o loop é PowerShell, por isso via -Command)
+pwsh -Command 'Get-ChildItem tests/*.ps1 | ForEach-Object { pwsh -File $_.FullName }'
+
+# Validar estrutura do projeto
+pwsh ./scripts/validate-structure.ps1 -ProjectPath "/home/user/projetos/luna-waves"
+
+# Ler um contrato
+pwsh ./scripts/read-contract.ps1 -KitName "website-kit" -ContractsDir "contracts"
 ```
 
 ---

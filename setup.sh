@@ -19,6 +19,7 @@ NC='\033[0m'
 INTEGRATIONS=()
 DRY_RUN=false
 FORCE=false
+GLOBAL=false
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -32,6 +33,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     --dry-run) DRY_RUN=true; shift ;;
     --force)   FORCE=true;   shift ;;
+    --global)  GLOBAL=true;  shift ;;
     --list)
       echo "Available integrations:"
       echo "  claude    — Claude Code        (.claude/commands/)"
@@ -42,6 +44,7 @@ while [[ $# -gt 0 ]]; do
       echo "  zed       — Zed               (.agents/skills/)"
       echo "  kimi      — Kimi Code          (.kimi-code/skills/)  [confirmed]"
       echo "  opencode  — opencode           (.opencode/commands/) [confirmed]"
+      echo "  openclaude — OpenClaude         (.claude/commands/)   [confirmed, --global → ~/.claude/commands/]"
       echo "  hermes    — Hermes             (~/.hermes/skills/)   [confirmed, GLOBAL]"
       echo "  agy       — Antigravity (agy)  (.agy/skills/)        [best-effort]"
       echo "  generic   — Generic            (.ai/commands/)"
@@ -240,6 +243,31 @@ install_integration() {
       echo -e "  Note: \$ARGUMENTS is natively supported by opencode"
       ;;
 
+    openclaude)
+      # OpenClaude follows the Claude Code command discovery conventions.
+      # Default: project-level .claude/commands/. With --global: also installs
+      # to ~/.claude/commands/ so commands work in ALL OpenClaude sessions.
+      local dir=".claude/commands"
+      for cmd in "${COMMANDS[@]}"; do
+        copy_command \
+          "$COMMANDS_SRC/org.$cmd.md" \
+          "$dir/org.$cmd.md" \
+          '$ARGUMENTS'
+      done
+      if [[ "$GLOBAL" == true ]]; then
+        local gdir="${HOME}/.claude/commands"
+        echo -e "  ${YELLOW}Note: installing GLOBALLY to ${gdir}/${NC}"
+        echo -e "  Commands will be available in ALL OpenClaude sessions.\n"
+        for cmd in "${COMMANDS[@]}"; do
+          copy_command \
+            "$COMMANDS_SRC/org.$cmd.md" \
+            "$gdir/org.$cmd.md" \
+            '$ARGUMENTS'
+        done
+      fi
+      echo -e "\n  Invoke with: /org.{command}"
+      ;;
+
     hermes)
       # Hermes installs GLOBALLY into ~/.hermes/skills/
       local dir="${HOME}/.hermes/skills"
@@ -308,6 +336,15 @@ else
   cp "$SCRIPTS_SRC"/*.ps1 "$SCRIPTS_DST"/ 2>/dev/null || true
   cp "$SCRIPTS_SRC"/*.psm1 "$SCRIPTS_DST"/ 2>/dev/null || true
   echo -e "${GREEN}✓${NC} Copied framework scripts to $SCRIPTS_DST"
+fi
+
+# The scripts/ engine runs on PowerShell 7+ (pwsh), which is cross-platform
+# (Linux/macOS/Windows) but isn't preinstalled on most Linux/macOS systems.
+if [[ "$DRY_RUN" == false ]] && ! command -v pwsh >/dev/null 2>&1; then
+  echo -e "\n${YELLOW}Note: 'pwsh' (PowerShell 7+) was not found on PATH.${NC}"
+  echo "  The scripts/ engine (init-project.ps1, create-work-package.ps1, ...) requires it."
+  echo "  Install: https://learn.microsoft.com/powershell/scripting/install/installing-powershell"
+  echo "  Then run commands as: pwsh ./scripts/init-project.ps1 -OrganizationName \"...\" -TargetPath \"...\""
 fi
 
 echo -e "\n${GREEN}Setup complete.${NC}"

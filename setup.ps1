@@ -6,6 +6,7 @@ param(
     [string[]]$Integration,
     [switch]$DryRun,
     [switch]$Force,
+    [switch]$Global,
     [switch]$List,
     [string]$TargetPath
 )
@@ -35,6 +36,7 @@ if ($List) {
     Write-Host "  zed       - Zed               (.agents\skills\)"
     Write-Host "  kimi      - Kimi Code          (.kimi-code\skills\)  [confirmed]"
     Write-Host "  opencode  - opencode           (.opencode\commands\) [confirmed]"
+    Write-Host "  openclaude - OpenClaude        (.claude\commands\)   [confirmed, -Global -> ~\.claude\commands\]"
     Write-Host "  hermes    - Hermes             (~\.hermes\skills\)   [confirmed, GLOBAL]"
     Write-Host "  agy       - Antigravity (agy)  (.agy\skills\)        [best-effort]"
     Write-Host "  generic   - Generic            (.ai\commands\)"
@@ -204,6 +206,29 @@ function Install-Integration {
             }
             Write-Host "`n  Invoke with: /org.{command} in the opencode TUI"
             Write-Host "  Note: `$ARGUMENTS is natively supported by opencode"
+        }
+
+        'openclaude' {
+            # OpenClaude follows the Claude Code command discovery conventions.
+            # Default: project-level .claude\commands\. With -Global: also installs
+            # to %USERPROFILE%\.claude\commands\ for ALL OpenClaude sessions.
+            $dir = '.claude\commands'
+            foreach ($cmd in $Commands) {
+                Copy-Command `
+                    (Join-Path $CommandsSrc "org.$cmd.md") `
+                    (Join-Path $dir "org.$cmd.md")
+            }
+            if ($Global) {
+                $gdir = Join-Path $env:USERPROFILE ".claude\commands"
+                Write-Host "  Note: installing GLOBALLY to $gdir" -ForegroundColor Yellow
+                Write-Host "  Commands will be available in ALL OpenClaude sessions.`n"
+                foreach ($cmd in $Commands) {
+                    Copy-Command `
+                        (Join-Path $CommandsSrc "org.$cmd.md") `
+                        (Join-Path $gdir "org.$cmd.md")
+                }
+            }
+            Write-Host "`n  Invoke with: /org.{command}"
         }
 
         'hermes' {

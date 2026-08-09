@@ -1,4 +1,5 @@
-﻿<#
+﻿#!/usr/bin/env pwsh
+<#
 .SYNOPSIS
     Reviews a Work Package delivery against its embedded contract.
 .DESCRIPTION
@@ -36,7 +37,7 @@ Write-Host ""
 # ---------------------------------------------------------------------------
 # 1. Locate work-package
 # ---------------------------------------------------------------------------
-$wpPath = Join-Path $ProjectPath "work-packages\$WorkPackage"
+$wpPath = Join-Path $ProjectPath "work-packages/$WorkPackage"
 if (-not (Test-Path $wpPath)) {
     Write-Err "Work Package not found: $wpPath"
     exit 1
@@ -168,7 +169,7 @@ if ($isEvidenceUpdate -or $isOverlay) {
         }
 
         foreach ($deletion in $deletions) {
-            $deletedTarget = Join-Path $ProjectPath "artifacts\$artifactId\current" $deletion
+            $deletedTarget = Join-Path (Join-Path $ProjectPath "artifacts/$artifactId/current") $deletion
             if (Test-Path $deletedTarget) {
                 Add-Finding 'INFO' "Overlay deletion exists" "PASS" "Will remove $deletion from current/"
                 Write-Ok "  deletion: $deletion (exists in current/)"
@@ -312,7 +313,7 @@ if ($manifestArtifact) {
     Write-Host "  Artifact review..." -ForegroundColor White
 
     if ($artifactAction -eq 'update' -and $artifactType -eq 'living') {
-        $artifactYaml = Join-Path $ProjectPath "artifacts\$artifactId\artifact.yaml"
+        $artifactYaml = Join-Path $ProjectPath "artifacts/$artifactId/artifact.yaml"
         if (-not (Test-Path $artifactYaml)) {
             $artifactPromotionReady = $false
             Add-Finding 'BLOCKER' "Living artifact exists" "FAIL" "action=update but artifacts/$artifactId/artifact.yaml not found"
@@ -328,7 +329,7 @@ if ($manifestArtifact) {
     }
 
     if ($artifactType -eq 'living' -and $artifactAction -eq 'create') {
-        $artifactYaml = Join-Path $ProjectPath "artifacts\$artifactId\artifact.yaml"
+        $artifactYaml = Join-Path $ProjectPath "artifacts/$artifactId/artifact.yaml"
         if (Test-Path $artifactYaml) {
             Add-Finding 'WARNING' "Living artifact already exists" "WARN" "action=create but artifact already exists; accept will treat as update"
             Write-Warn "  [WARNING] artifact '$artifactId' already exists; accept will bump version"
@@ -553,7 +554,7 @@ Write-Ok "status.json updated (review_status: $reviewStatus)"
 # 10. Changelog
 # ---------------------------------------------------------------------------
 $logLine = "`n| $(Get-Date -Format 'yyyy-MM-dd') | in-review | framework | Review completed: $reviewStatus |"
-Add-Content -Path (Join-Path $wpPath "logs\changelog.md") -Value $logLine -Encoding utf8
+Add-Content -Path (Join-Path $wpPath "logs/changelog.md") -Value $logLine -Encoding utf8
 
 # ---------------------------------------------------------------------------
 # 11. Update state/organization.json

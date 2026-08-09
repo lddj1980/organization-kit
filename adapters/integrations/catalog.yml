@@ -113,6 +113,20 @@ integrations:
     confidence: confirmed
     tags: ["cli"]
 
+  openclaude:
+    id: openclaude
+    name: "OpenClaude"
+    description: "Command files for OpenClaude CLI — Claude Code-compatible slash commands"
+    commands_dir: ".claude/commands"
+    file_pattern: "org.{name}.md"
+    invocation: "/org.{name}"
+    frontmatter:
+      description: true
+      handoffs: true
+    install_scope: project | global
+    confidence: confirmed
+    tags: ["cli", "skills"]
+
   agy:
     id: agy
     name: "Antigravity (agy)"

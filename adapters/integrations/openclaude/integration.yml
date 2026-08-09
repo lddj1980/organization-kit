@@ -1,0 +1,59 @@
+schema_version: "1.0"
+integration:
+  id: openclaude
+  name: "OpenClaude"
+  version: "0.1.0"
+  description: "Command files for OpenClaude CLI. Commands are installed as /org.* slash commands using the Claude Code-compatible convention."
+
+source: "spec-kit conventions + Claude Code compatibility reference (https://code.claude.com/docs/en/skills.md) — OpenClaude follows the Claude Code command discovery conventions."
+
+requires:
+  tools:
+    - name: "openclaude"
+      required: true
+
+provides:
+  commands_dir: ".claude/commands"
+  global_dir: "~/.claude/commands"
+  file_pattern: "org.{name}.md"
+  commands:
+    - name: "org.init"
+      file: "commands/org.init.md"
+    - name: "org.discover"
+      file: "commands/org.discover.md"
+    - name: "org.spec"
+      file: "commands/org.spec.md"
+    - name: "org.package"
+      file: "commands/org.package.md"
+    - name: "org.invoke"
+      file: "commands/org.invoke.md"
+    - name: "org.review"
+      file: "commands/org.review.md"
+    - name: "org.accept"
+      file: "commands/org.accept.md"
+    - name: "org.learn"
+      file: "commands/org.learn.md"
+    - name: "org.status"
+      file: "commands/org.status.md"
+    - name: "org.health"
+      file: "commands/org.health.md"
+    - name: "org.next"
+      file: "commands/org.next.md"
+    - name: "org.evolve"
+      file: "commands/org.evolve.md"
+    - name: "org.audit"
+      file: "commands/org.audit.md"
+    - name: "org.reconcile"
+      file: "commands/org.reconcile.md"
+    - name: "org.normalize"
+      file: "commands/org.normalize.md"
+
+notes: |
+  OpenClaude follows the Claude Code command discovery conventions:
+  - Project-level commands live in .claude/commands/ (already in use in this repo).
+  - User-level (GLOBAL) commands live in ~/.claude/commands/ and apply across all
+    projects on the machine. On Windows this is %USERPROFILE%\.claude\commands\.
+  - Commands appear as /org.{name} in the OpenClaude interface.
+  - $ARGUMENTS is populated with the text typed after the command name.
+  - OpenClaude keeps its own runtime data under ~/.openclaude/, but command discovery
+    uses the Claude Code paths above (CLAUDE_CONFIG_DIR relocates the whole ~/.claude tree).

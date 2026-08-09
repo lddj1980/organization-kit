@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 <#
 .SYNOPSIS
     Normalizes a Work Package's delivery mode, converting legacy full-copy deliveries
@@ -54,8 +55,8 @@ function Read-ManifestArtifact {
 
 function Get-RelativePath {
     param([string]$FullPath, [string]$BasePath)
-    $base = (Resolve-Path $BasePath).Path.TrimEnd('\')
-    $rel = $FullPath.Substring($base.Length).TrimStart('\')
+    $base = (Resolve-Path $BasePath).Path.TrimEnd('\', '/')
+    $rel = $FullPath.Substring($base.Length).TrimStart('\', '/')
     return $rel -replace '\\', '/'
 }
 
@@ -67,7 +68,7 @@ Write-Host ""
 # ---------------------------------------------------------------------------
 # 1. Locate work-package and read metadata
 # ---------------------------------------------------------------------------
-$wpPath = Join-Path $ProjectPath "work-packages\$WorkPackage"
+$wpPath = Join-Path $ProjectPath "work-packages/$WorkPackage"
 if (-not (Test-Path $wpPath)) {
     Write-Err "Work Package not found: $wpPath"
     exit 1
@@ -96,7 +97,7 @@ Write-Info "Current delivery_mode: $currentMode"
 # 2. Compare response/ with current artifact state
 # ---------------------------------------------------------------------------
 $responseDir = Join-Path $wpPath "response"
-$currentDir = Join-Path $ProjectPath "artifacts\$artifactId\current"
+$currentDir = Join-Path $ProjectPath "artifacts/$artifactId/current"
 
 if (-not (Test-Path $responseDir)) {
     Write-Err "response/ directory not found"
@@ -239,15 +240,15 @@ if ($DryRun) {
     $reportLines += "", "**Mode:** Dry run (no changes made)"
 } else {
     # Backup response/
-    $backupDir = Join-Path $wpPath "response.backup\$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+    $backupDir = Join-Path $wpPath "response.backup/$(Get-Date -Format 'yyyyMMdd-HHmmss')"
     New-Item -ItemType Directory -Path $backupDir -Force | Out-Null
-    Copy-Item -Recurse -Path "$responseDir\*" -Destination $backupDir -Force
+    Copy-Item -Recurse -Path "$responseDir/*" -Destination $backupDir -Force
     Write-Ok "Backup created at: $backupDir"
 
     if ($TargetMode -eq 'overlay') {
         # Remove identical files
         foreach ($rel in $identical) {
-            $fullPath = Join-Path $responseDir ($rel -replace '/', '\')
+            $fullPath = Join-Path $responseDir $rel
             Remove-Item -Path $fullPath -Force
             # Clean up empty parent directories
             $parent = Split-Path $fullPath -Parent
@@ -285,7 +286,7 @@ if ($DryRun) {
     } elseif ($TargetMode -eq 'evidence') {
         # Remove all non-evidence files
         foreach ($rel in $responseMap.Keys) {
-            $fullPath = Join-Path $responseDir ($rel -replace '/', '\')
+            $fullPath = Join-Path $responseDir $rel
             Remove-Item -Path $fullPath -Force
             $parent = Split-Path $fullPath -Parent
             while ($parent -and $parent -ne $responseDir -and (Test-Path $parent) -and -not (Get-ChildItem -Path $parent -Recurse -ErrorAction SilentlyContinue)) {

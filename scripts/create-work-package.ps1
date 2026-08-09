@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 <#
 .SYNOPSIS
     Creates a contract-driven Work Package for a Capability Kit.
@@ -154,13 +155,13 @@ foreach ($input in $contract.RequiredInputs) {
     $found = Find-OrgKitInputFile -InputName $input -ProjectPath $ProjectPath
     if ($found) {
         $destName = [System.IO.Path]::GetFileName($found)
-        Copy-Item -Path $found -Destination (Join-Path $wpPath "request\$destName") -Force
+        Copy-Item -Path $found -Destination (Join-Path $wpPath "request/$destName") -Force
         Write-Ok "[required] $input  ->  request/$destName"
     } else {
         $missingInputs += $input
         Write-Warn "[required] $input  -  NOT FOUND"
         "# $input`n`n> MISSING: This required input was not found in the project.`n> Provide this file before invoking the Capability Kit." |
-            Set-Content (Join-Path $wpPath "request\$input") -Encoding utf8
+            Set-Content (Join-Path $wpPath "request/$input") -Encoding utf8
     }
 }
 
@@ -168,7 +169,7 @@ foreach ($input in $contract.OptionalInputs) {
     $found = Find-OrgKitInputFile -InputName $input -ProjectPath $ProjectPath
     if ($found) {
         $destName = [System.IO.Path]::GetFileName($found)
-        Copy-Item -Path $found -Destination (Join-Path $wpPath "request\$destName") -Force
+        Copy-Item -Path $found -Destination (Join-Path $wpPath "request/$destName") -Force
         Write-Info "[optional] $input  ->  request/$destName"
     } else {
         Write-Info "[optional] $input  -  not found (skipped)"
@@ -190,7 +191,7 @@ if ($isOverlay) {
     $evidenceFiles = @('change-summary.md', 'files-changed.md', 'verification.md', 'test-results.md', 'git-reference.md')
     foreach ($file in $evidenceFiles) {
         "# $file`n`n> This file must be delivered by the Capability Kit as evidence of the change.`n> Replace this placeholder with actual content.`n" |
-            Set-Content (Join-Path $wpPath "response\$file") -Encoding utf8
+            Set-Content (Join-Path $wpPath "response/$file") -Encoding utf8
         Write-Info "response/$file (evidence placeholder)"
     }
 
@@ -203,19 +204,19 @@ if ($isOverlay) {
 > Paths are relative to `artifacts/$artifactId/current/`.
 
 - path/relative/to/current/file-to-delete.ext
-"@ | Set-Content (Join-Path $wpPath "response\deletions.md") -Encoding utf8
+"@ | Set-Content (Join-Path $wpPath "response/deletions.md") -Encoding utf8
     Write-Info "response/deletions.md (overlay deletions placeholder)"
 
     # Scaffold expected_outputs so the kit can fill only the modified ones
     foreach ($output in $contract.ExpectedOutputs) {
         if ($output.EndsWith('/')) {
             $dirName = $output.TrimEnd('/')
-            New-Item -ItemType Directory -Path (Join-Path $wpPath "response\$dirName") -Force | Out-Null
-            ".gitkeep" | Set-Content (Join-Path $wpPath "response\$dirName\.gitkeep") -Encoding utf8
+            New-Item -ItemType Directory -Path (Join-Path $wpPath "response/$dirName") -Force | Out-Null
+            ".gitkeep" | Set-Content (Join-Path $wpPath "response/$dirName/.gitkeep") -Encoding utf8
             Write-Info "response/$dirName/ (overlay directory)"
         } else {
             "# $output`n`n> Overlay mode: deliver only if this file was modified.`n> Leave placeholder unchanged if not applicable.`n" |
-                Set-Content (Join-Path $wpPath "response\$output") -Encoding utf8
+                Set-Content (Join-Path $wpPath "response/$output") -Encoding utf8
             Write-Info "response/$output (overlay placeholder)"
         }
     }
@@ -240,14 +241,14 @@ delivery. That means `response/` should contain:
 Do **not** place a full copy of the artifact here unless every file really changed.
 Files present in `response/` will be merged onto `artifacts/$artifactId/current/` during acceptance.
 Files not present in `response/` will be preserved in `current/`.
-"@ | Set-Content (Join-Path $wpPath "response\README.md") -Encoding utf8
+"@ | Set-Content (Join-Path $wpPath "response/README.md") -Encoding utf8
     Write-Info "response/README.md (overlay guidance)"
 } elseif ($isEvidenceUpdate) {
     # Evolution of a Living Artifact: response/ contains evidence only
     $evidenceFiles = @('change-summary.md', 'files-changed.md', 'verification.md', 'test-results.md', 'git-reference.md')
     foreach ($file in $evidenceFiles) {
         "# $file`n`n> This file must be delivered by the Capability Kit as evidence of the change.`n> Replace this placeholder with actual content.`n" |
-            Set-Content (Join-Path $wpPath "response\$file") -Encoding utf8
+            Set-Content (Join-Path $wpPath "response/$file") -Encoding utf8
         Write-Info "response/$file (evidence placeholder)"
     }
 
@@ -269,19 +270,19 @@ The `response/` folder must contain only verifiable evidence of what changed:
 - verification.md — how the change was verified
 - test-results.md — test outcomes
 - git-reference.md — Git commit/branch reference (if applicable)
-"@ | Set-Content (Join-Path $wpPath "response\README.md") -Encoding utf8
+"@ | Set-Content (Join-Path $wpPath "response/README.md") -Encoding utf8
     Write-Info "response/README.md (evolution guidance)"
 } else {
     # New artifact, immutable artifact, or full_replacement: scaffold expected outputs
     foreach ($output in $contract.ExpectedOutputs) {
         if ($output.EndsWith('/')) {
             $dirName = $output.TrimEnd('/')
-            New-Item -ItemType Directory -Path (Join-Path $wpPath "response\$dirName") -Force | Out-Null
-            ".gitkeep" | Set-Content (Join-Path $wpPath "response\$dirName\.gitkeep") -Encoding utf8
+            New-Item -ItemType Directory -Path (Join-Path $wpPath "response/$dirName") -Force | Out-Null
+            ".gitkeep" | Set-Content (Join-Path $wpPath "response/$dirName/.gitkeep") -Encoding utf8
             Write-Info "response/$dirName/ (directory)"
         } else {
             "# $output`n`n> This file must be delivered by the Capability Kit.`n> Replace this placeholder with the actual deliverable.`n" |
-                Set-Content (Join-Path $wpPath "response\$output") -Encoding utf8
+                Set-Content (Join-Path $wpPath "response/$output") -Encoding utf8
             Write-Info "response/$output (placeholder)"
         }
     }
@@ -321,7 +322,7 @@ $acceptanceMd
 1. Complete all expected outputs in the response/ folder.
 2. Write response/report.md documenting what was built and key decisions.
 3. Notify the framework that the work-package is ready for review.
-"@ | Set-Content (Join-Path $wpPath "request\brief.md") -Encoding utf8
+"@ | Set-Content (Join-Path $wpPath "request/brief.md") -Encoding utf8
 
 # ---------------------------------------------------------------------------
 # 9. Write manifest.yaml
@@ -368,10 +369,10 @@ $acceptanceYaml
 # 10. Create current-artifact reference files for living updates
 # ---------------------------------------------------------------------------
 if ($artifactType -eq 'living' -and $artifactAction -eq 'update' -and $artifactId) {
-    $currentRef = Join-Path $wpPath "request\current-artifact-reference.md"
-    $currentSummary = Join-Path $wpPath "request\current-artifact-summary.md"
+    $currentRef = Join-Path $wpPath "request/current-artifact-reference.md"
+    $currentSummary = Join-Path $wpPath "request/current-artifact-summary.md"
     # Living Artifacts always keep their current state in artifacts/<id>/current/
-    $currentPath = Join-Path $ProjectPath "artifacts\$artifactId\current"
+    $currentPath = Join-Path $ProjectPath "artifacts/$artifactId/current"
     $currentPathRelative = "artifacts/$artifactId/current/"
 
     @"
@@ -407,7 +408,7 @@ $summaryBody
 "@ | Set-Content $currentSummary -Encoding utf8
 
     # change-spec.md: what must change in this evolution
-    $changeSpec = Join-Path $wpPath "request\change-spec.md"
+    $changeSpec = Join-Path $wpPath "request/change-spec.md"
     @"
 # Change Specification
 
@@ -439,7 +440,7 @@ Describe here what must change in this evolution of the artifact.
 "@ | Set-Content $changeSpec -Encoding utf8
 
     # acceptance-criteria.md: evolution-specific acceptance criteria
-    $acceptanceCriteria = Join-Path $wpPath "request\acceptance-criteria.md"
+    $acceptanceCriteria = Join-Path $wpPath "request/acceptance-criteria.md"
     $contractAcceptanceMd = ($contract.AcceptanceCriteria | ForEach-Object { "- [ ] $_" }) -join "`n"
     @"
 # Acceptance Criteria — $artifactId $targetVersion
@@ -494,7 +495,7 @@ $statusObj | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $wpPath "status.js
 | Date | Status | Actor | Note |
 |------|--------|-------|------|
 | $(Get-Date -Format 'yyyy-MM-dd') | created | framework | Work Package created from $Kit contract |
-"@ | Set-Content (Join-Path $wpPath "logs\changelog.md") -Encoding utf8
+"@ | Set-Content (Join-Path $wpPath "logs/changelog.md") -Encoding utf8
 
 if ($missingInputs.Count -gt 0) {
     $missingMd = ($missingInputs | ForEach-Object { "- **$_** - not found in project" }) -join "`n"
@@ -512,7 +513,7 @@ For each missing file:
 1. Run `/org.discover <target>` to generate it, OR
 2. Create it manually and place it in the expected project location, OR
 3. Fill the placeholder in request/<filename> directly.
-"@ | Set-Content (Join-Path $wpPath "logs\missing-inputs.md") -Encoding utf8
+"@ | Set-Content (Join-Path $wpPath "logs/missing-inputs.md") -Encoding utf8
 }
 
 # ---------------------------------------------------------------------------

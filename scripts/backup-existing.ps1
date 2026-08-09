@@ -1,4 +1,5 @@
-﻿param(
+﻿#!/usr/bin/env pwsh
+param(
     [string]$TargetPath,
     [switch]$Force
 )
