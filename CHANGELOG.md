@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Integração nativa `codex`: instalador gera skills nativas do Codex CLI (`org.{command}/SKILL.md`) em `.agents/skills/` (projeto) e `~/.agents/skills/` (global) via `setup.ps1`/`setup.sh`, com suporte a `--global`/`-Global` e `--global-path`/`-GlobalPath` para override do destino global.
 - `/org.spec <artifact-id>`: comando detecta artefatos vivos existentes e gera specifications de evolução com `current_version`, `current_path`, `history.md` e últimos Work Packages relacionados.
 - `create-work-package.ps1` gera `request/change-spec.md` e `request/acceptance-criteria.md` para Work Packages de evolução de Living Artifacts.
 - Entrypoints `skills/spec-website/SKILL.md` e `skills/accept-artifact/SKILL.md` para integração com o motor de skills.

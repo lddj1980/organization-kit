@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "deerflow-frontend",
+      "runtimeExecutable": "C:\\Users\\User\\learning-harness\\run-frontend-dev.bat",
+      "runtimeArgs": [],
+      "port": 3000
+    },
+    {
+      "name": "deerflow-backend",
+      "runtimeExecutable": "C:\\Users\\User\\learning-harness\\run-backend-dev.bat",
+      "runtimeArgs": [],
+      "port": 8001
+    }
+  ]
+}

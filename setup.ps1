@@ -33,6 +33,8 @@ if ($List) {
     Write-Host "  opencode   - opencode           (.opencode\commands\) [confirmed]"
     Write-Host "  openclaude - OpenClaude         (.openclaude\skills\<command>\SKILL.md) [native]"
     Write-Host "               -Global -> ~\.openclaude\skills\ (or OPENCLAUDE_CONFIG_DIR\skills)"
+    Write-Host "  codex      - Codex CLI           (.agents\skills\<command>\SKILL.md) [native]"
+    Write-Host "               -Global -> ~\.agents\skills\"
     Write-Host "  hermes     - Hermes             (~\.hermes\skills\)   [confirmed, GLOBAL]"
     Write-Host "  agy        - Antigravity (agy)  (.agy\skills\)        [best-effort]"
     Write-Host "  generic    - Generic            (.ai\commands\)"
@@ -184,6 +186,23 @@ function Install-Integration {
             & $installer @params
             if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
                 throw "OpenClaude adapter failed with exit code $LASTEXITCODE"
+            }
+        }
+
+        'codex' {
+            $installer = Join-Path $ScriptDir 'adapters\integrations\codex\install.ps1'
+            if (-not (Test-Path $installer)) {
+                throw "Codex native adapter not found: $installer"
+            }
+            $params = @{
+                TargetPath = $InstallRoot
+                DryRun = $DryRun
+                Force = $Force
+                Global = $Global
+            }
+            & $installer @params
+            if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+                throw "Codex adapter failed with exit code $LASTEXITCODE"
             }
         }
 

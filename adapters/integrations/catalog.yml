@@ -130,6 +130,21 @@ integrations:
     confidence: confirmed
     tags: ["cli", "skills", "native"]
 
+  codex:
+    id: codex
+    name: "Codex CLI"
+    description: "Native Codex skills generated from canonical Organization Kit commands"
+    commands_dir: ".agents/skills"
+    global_dir: "~/.agents/skills"
+    file_pattern: "org.{name}/SKILL.md"
+    invocation: "$org.{name} | /skills | implicit"
+    frontmatter:
+      name: true
+      description: true
+    install_scope: project | global
+    confidence: confirmed
+    tags: ["cli", "skills", "native"]
+
   agy:
     id: agy
     name: "Antigravity (agy)"

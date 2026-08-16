@@ -47,6 +47,8 @@ while [[ $# -gt 0 ]]; do
       echo "  opencode   — opencode           (.opencode/commands/) [confirmed]"
       echo "  openclaude — OpenClaude         (.openclaude/skills/<command>/SKILL.md) [native]"
       echo "               --global → ~/.openclaude/skills/ (or OPENCLAUDE_CONFIG_DIR/skills)"
+      echo "  codex      — Codex CLI           (.agents/skills/<command>/SKILL.md) [native]"
+      echo "               --global → ~/.agents/skills/"
       echo "  hermes     — Hermes             (~/.hermes/skills/)   [confirmed, GLOBAL]"
       echo "  agy        — Antigravity (agy)  (.agy/skills/)        [best-effort]"
       echo "  generic    — Generic            (.ai/commands/)"
@@ -186,6 +188,16 @@ install_integration() {
     openclaude)
       local installer="$SCRIPT_DIR/adapters/integrations/openclaude/install.sh"
       if [[ ! -f "$installer" ]]; then echo "OpenClaude native adapter not found: $installer" >&2; return 1; fi
+      local args=(--target "$TARGET_PATH")
+      [[ "$DRY_RUN" == true ]] && args+=(--dry-run)
+      [[ "$FORCE" == true ]] && args+=(--force)
+      [[ "$GLOBAL" == true ]] && args+=(--global)
+      bash "$installer" "${args[@]}"
+      ;;
+
+    codex)
+      local installer="$SCRIPT_DIR/adapters/integrations/codex/install.sh"
+      if [[ ! -f "$installer" ]]; then echo "Codex native adapter not found: $installer" >&2; return 1; fi
       local args=(--target "$TARGET_PATH")
       [[ "$DRY_RUN" == true ]] && args+=(--dry-run)
       [[ "$FORCE" == true ]] && args+=(--force)

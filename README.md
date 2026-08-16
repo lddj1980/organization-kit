@@ -243,6 +243,7 @@ O framework suporta múltiplas ferramentas via adapters em `adapters/`:
 - Kimi
 - OpenCode
 - OpenClaude
+- Codex CLI
 - Cursor
 - Gemini
 - Generic

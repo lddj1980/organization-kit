@@ -49,12 +49,12 @@ foreach ($dir in @('.org-kit', 'organizations')) {
 if ($SkipCommands) {
     Write-Info "Skipping command copies (-SkipCommands)"
 } else {
-    if ($Adapter -eq 'openclaude') {
-        # OpenClaude has its own native skill registry. Do not install into the
-        # legacy .claude/commands path: adapt commands/ into SKILL.md files.
-        $OpenClaudeInstaller = Join-Path $RootDir "adapters/integrations/openclaude/install.ps1"
-        if (-not (Test-Path $OpenClaudeInstaller)) {
-            throw "OpenClaude adapter installer not found: $OpenClaudeInstaller"
+    if ($Adapter -eq 'openclaude' -or $Adapter -eq 'codex') {
+        # Native skill adapters have their own skill registry. Do not install
+        # into the legacy .claude/commands path: adapt commands/ into SKILL.md files.
+        $NativeInstaller = Join-Path $RootDir "adapters/integrations/$Adapter/install.ps1"
+        if (-not (Test-Path $NativeInstaller)) {
+            throw "$Adapter adapter installer not found: $NativeInstaller"
         }
 
         $adapterParams = @{
@@ -63,9 +63,9 @@ if ($SkipCommands) {
             Force = $Force
             Global = $Global
         }
-        & $OpenClaudeInstaller @adapterParams
+        & $NativeInstaller @adapterParams
         if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
-            throw "OpenClaude adapter installation failed with exit code $LASTEXITCODE"
+            throw "$Adapter adapter installation failed with exit code $LASTEXITCODE"
         }
     } else {
         $AdapterCommandsDir = Join-Path $RootDir "adapters/$Adapter/commands"

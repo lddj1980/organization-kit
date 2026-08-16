@@ -32,14 +32,17 @@ setup.sh / setup.ps1          ← copies files to the right place
 | Zed | `zed` | `.agents/skills/` | `/org.init` | ✅ |
 | Kimi Code | `kimi` | `.kimi-code/skills/` | `/org.init` | ✅ |
 | opencode | `opencode` | `.opencode/commands/` | `/org.init` | ✅ |
-| OpenClaude | `openclaude` | `.claude/commands/` (or `~/.claude/commands/` with `-Global`) | `/org.init` | ✅ |
+| OpenClaude | `openclaude` | `.openclaude/skills/` (or `~/.openclaude/skills/` with `-Global`) | `/org.init` | ✅ |
+| Codex CLI | `codex` | `.agents/skills/` (or `~/.agents/skills/` with `-Global`) | `$org.init` / `/skills` | ✅ |
 | Hermes | `hermes` | `~/.hermes/skills/` ⚠️ GLOBAL | `/org.init` | ✅ |
 | Antigravity (agy) | `agy` | `.agy/skills/` | `/org.init` | ⚠️ best-effort |
 | Generic | `generic` | `.ai/commands/` | see agent docs | ✅ |
 
 **Hermes** installs globally (`~/.hermes/skills/`) — commands appear in all Hermes sessions, not just this project.
 
-**OpenClaude** follows the Claude Code command discovery conventions. By default commands install to `.claude/commands/`; pass `--global` (`setup.sh`) or `-Global` (`setup.ps1`) to also install to `~/.claude/commands/` so they appear in all OpenClaude sessions.
+**OpenClaude** installs native skills. By default skills install to `.openclaude/skills/`; pass `--global` (`setup.sh`) or `-Global` (`setup.ps1`) to also install to `~/.openclaude/skills/` (or `OPENCLAUDE_CONFIG_DIR/skills`) so they appear in all OpenClaude sessions.
+
+**Codex CLI** installs native Agent Skills. By default skills install to `.agents/skills/`; pass `--global` (`setup.sh`) or `-Global` (`setup.ps1`) to also install to `~/.agents/skills/` so they appear in all Codex sessions. Invoke with `$org.init` (explicit mention), the `/skills` picker, or implicitly by description.
 
 **agy** path is inferred from convention since documentation was unreachable. If it doesn't work, check `integrations/agy/integration.yml` for the correction path.
 

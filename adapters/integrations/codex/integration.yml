@@ -1,0 +1,79 @@
+schema_version: "1.1"
+integration:
+  id: codex
+  name: "Codex CLI"
+  version: "0.1.0"
+  description: "Native Codex skills generated from canonical Organization Kit commands into .agents/skills/<command>/SKILL.md."
+
+source: "Codex CLI (openai/codex) native Agent Skills loader: project skills in .agents/skills/, user skills in ~/.agents/skills/. The legacy ~/.codex/prompts custom-prompts feature is deprecated by OpenAI in favor of skills."
+
+requires:
+  tools:
+    - name: "codex"
+      required: true
+
+provides:
+  skills_dir: ".agents/skills"
+  global_dir: "~/.agents/skills"
+  file_pattern: "org.{name}/SKILL.md"
+  invocation_pattern: "$org.{name} | /skills | implicit by description"
+  command_source: "commands/org.{name}.md"
+  commands:
+    - name: "org.init"
+      file: "commands/org.init.md"
+    - name: "org.discover"
+      file: "commands/org.discover.md"
+    - name: "org.spec"
+      file: "commands/org.spec.md"
+    - name: "org.package"
+      file: "commands/org.package.md"
+    - name: "org.invoke"
+      file: "commands/org.invoke.md"
+    - name: "org.review"
+      file: "commands/org.review.md"
+    - name: "org.accept"
+      file: "commands/org.accept.md"
+    - name: "org.learn"
+      file: "commands/org.learn.md"
+    - name: "org.status"
+      file: "commands/org.status.md"
+    - name: "org.health"
+      file: "commands/org.health.md"
+    - name: "org.next"
+      file: "commands/org.next.md"
+    - name: "org.evolve"
+      file: "commands/org.evolve.md"
+    - name: "org.audit"
+      file: "commands/org.audit.md"
+    - name: "org.reconcile"
+      file: "commands/org.reconcile.md"
+    - name: "org.normalize"
+      file: "commands/org.normalize.md"
+
+adapter:
+  strategy: "semantic-frontmatter"
+  preserves:
+    - "canonical markdown body"
+    - "$ARGUMENTS placeholders"
+    - "public /org.* command names"
+  emits_frontmatter:
+    - "name"
+    - "description"
+  drops_source_frontmatter:
+    - "handoffs"
+  defaults:
+    skill_name_prefix: "org."
+
+notes: |
+  Codex loads skills from a native Agent Skills registry (Agent Skills shipped for
+  Codex in December 2025).
+  - Project-level skills live in .agents/skills/<skill>/SKILL.md.
+  - User-level (GLOBAL) skills live in ~/.agents/skills/<skill>/SKILL.md.
+  - The directory name is intentionally "org.init", "org.spec", etc. so the public
+    command surface stays /org.init, /org.spec, and so on.
+  - Invoke explicitly with $org.init in a prompt, pick from the /skills menu, or let
+    Codex load the skill implicitly from its description.
+  - $ARGUMENTS is preserved literally in the skill body (Codex also honors $1..$9
+    and named placeholders). The legacy ~/.codex/prompts mechanism is deprecated.
+  - Organization Kit keeps commands/ as its single canonical source. The Codex
+    installer converts each command into a native SKILL.md at install time.
